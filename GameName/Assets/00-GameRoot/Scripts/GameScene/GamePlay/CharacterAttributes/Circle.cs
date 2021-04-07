@@ -1,22 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
 public class Circle : MonoBehaviour
 {
-    Unit _circleUnit = new Unit();
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        _circleUnit.unitName = "cirlce";
-        _circleUnit.unitLevel = 1;
-        _circleUnit.currentHP = _circleUnit.maxHP = 20;
-        _circleUnit.damage = 2;
-    }
+        BaseUnit circleUnit = new BaseUnit();
+        circleUnit.unitName = "cirlce";
+        circleUnit.unitLevel = 1;
+        circleUnit.currentHP = circleUnit.maxHP = 20;
+        circleUnit.damage = 2;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        GetComponentInParent<Unit>().AssignCharacterUnit(circleUnit);
     }
 }
