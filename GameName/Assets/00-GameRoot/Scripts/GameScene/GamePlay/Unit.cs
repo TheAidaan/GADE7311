@@ -1,10 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 public class BaseUnit
 {
+    public int teamID;
     public string unitName;
-    public int unitLevel;
+    public int unitLevel;   
 
     public int damage;
 
@@ -13,7 +14,15 @@ public class BaseUnit
 }
 public class Unit : MonoBehaviour
 {
+    bool _turnCompleted;
     BaseUnit _characterUnit = new BaseUnit();
+    GameObject _uiCanvas;
+
+    private void Awake()
+    {
+        _uiCanvas = GetComponentInChildren<Canvas>().gameObject;
+        _uiCanvas.SetActive(false);
+    }
 
     public void AssignCharacterUnit(BaseUnit unit)
     {
@@ -24,6 +33,29 @@ public class Unit : MonoBehaviour
     {
         return _characterUnit;
     }
+
+    public bool Decativated()
+    {
+        if (_turnCompleted)
+        {
+            _uiCanvas.SetActive(false);
+            return true;
+        }
+        else
+            return false;     
+    }
+
+    public void Activate()
+    {
+        _turnCompleted = false;
+        _uiCanvas.SetActive(true);
+    }
+
+    public void AddToTeam()
+    {
+        GameManager.Static_AddToTeam(_characterUnit.teamID, this);
+    }
+
     #region Heal
 
     public void Heal()
@@ -33,6 +65,8 @@ public class Unit : MonoBehaviour
             _characterUnit.currentHP = _characterUnit.maxHP;
 
         Debug.Log(_characterUnit.currentHP);
+
+        _turnCompleted = true;
     }
     #endregion
 
@@ -47,7 +81,11 @@ public class Unit : MonoBehaviour
     {
         _characterUnit.currentHP -= damage;
         if (_characterUnit.currentHP <= 0)
+        {
             Destroy(gameObject);
+            GameManager.Static_RemoveFromTeam(_characterUnit.teamID, this);
+        }
+           
 
         Debug.Log(_characterUnit.unitName + " took " + damage + " damage");
         Debug.Log(_characterUnit.currentHP);
@@ -71,6 +109,7 @@ public class Unit : MonoBehaviour
                     if (hit.collider.gameObject.GetComponent<Unit>() != null) // check if collider is a unit
                     {
                         hit.collider.gameObject.GetComponent<Unit>().TakeDamage(_characterUnit.damage);
+                        _turnCompleted = true;
                         InfoText.Static_ClearOnScreenText();
                         done = true; // breaks the loop
                     }
