@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 2ad38d5da9a8004408832662560aeac9
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Happy Family
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 340796b0f6b7c5643814ba204ad0e0bd, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

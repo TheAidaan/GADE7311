@@ -9,21 +9,21 @@ public class GameManager : MonoBehaviour
 
     public static bool battleOver;
 
-    Teams[] _currentTeams = new Teams[2]; // will  hold the necessary information for the two teams
+    BaseTeams[] _teams = new BaseTeams[2]; // will  hold the necessary information for the two teams
 
 
     
     void Awake()
     {
-        _currentTeams[0] = new Teams();
-        _currentTeams[1] = new Teams();
+        _teams[0] = new BaseTeams();
+        _teams[1] = new BaseTeams();
         instance = this;
     }
 
     void Start()
     {
-        _currentTeams[0].teamName = "bubu";
-        _currentTeams[1].teamName = "sheba"; //must get the team name from somebody 
+        _teams[0].teamName = "bubu";
+        _teams[1].teamName = "sheba"; //must get the team name from somebody 
         
     }
 
@@ -31,24 +31,19 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            StartBattle();
+            StartCoroutine(WaitForDeactivation(0));
         }
-    }
-
-    void StartBattle()
-    {
-
-        StartCoroutine(WaitForDeactivation(0));
     }
 
     public IEnumerator WaitForDeactivation(int teamID)
     {
-        if (_currentTeams[teamID].unitMembers.Count != 0)
+        bool done, hasActiveTeamMembers;
+        done = hasActiveTeamMembers = false;
+        if (_teams[teamID].unitMembers.Count != 0)
         {
-            Debug.Log("Unit Members Count: " + _currentTeams[teamID].unitMembers.Count);
-            foreach (Unit unit in _currentTeams[teamID].unitMembers)
+            foreach (Unit unit in _teams[teamID].unitMembers)
             {
-                bool done = false;
+                
                 unit.Activate();
 
                 while (!done) // essentially a "while true", but with a bool to break out naturally
@@ -56,31 +51,51 @@ public class GameManager : MonoBehaviour
                     if (unit.Decativated())
                     {
                         done = true; // breaks the loop     
-                    }
+                    } 
                     yield return null; // wait until next frame, then continue execution from here (loop continues)
                 }
             }
-
-            StartCoroutine(WaitForDeactivation(Mathf.Abs(teamID - 1)));
+            hasActiveTeamMembers = true;
         }
-        else
+        
+        if (_teams[teamID].headUnit.HeadUnitAlive()) //if false then the team has lost
         {
-            EndBattle(Mathf.Abs(teamID - 1));
+            _teams[teamID].headUnit.Activate();
+            done = false;
+            while (!done) // essentially a "while true", but with a bool to break out naturally
+            {
+                if (_teams[teamID].headUnit.Decativated())
+                {
+                    done = true; // breaks the loop     
+                }
+                yield return null; // wait until next frame, then continue execution from here (loop continues)
+            }
         }
+        
+        if (hasActiveTeamMembers || _teams[teamID].headUnit.HeadUnitAlive()) //does this team have any members that can attack and does it still have a head unit?
+            StartCoroutine(WaitForDeactivation(Mathf.Abs(teamID - 1)));//if yes, then let the next team have their turn
+        else
+            EndBattle(Mathf.Abs(teamID - 1));// if no, declare the next team the winner
     }
 
     void EndBattle(int WinningTeamID)
     {
-        InfoText.Static_SetOnScreenText(_currentTeams[WinningTeamID].teamName + " has won");
+        InfoText.Static_SetOnScreenText(_teams[WinningTeamID].teamName + " has won");
     }
 
-    void AddToTeam(int id, Unit unit)
+    void AddToTeam(int teamID, Unit unit)
     {
-        _currentTeams[id].unitMembers.Add(unit);
+        if ( _teams[teamID].headUnit == null)
+        {
+            _teams[teamID].headUnit = unit;
+            unit.SetAsHeadUnit();
+        }     
+        else
+            _teams[teamID].unitMembers.Add(unit);
     }
     public void RemoveFromTeam(int id, Unit unit)
     {
-        _currentTeams[id].unitMembers.Remove(unit); //unit has been killed in the game
+        _teams[id].unitMembers.Remove(unit); //unit has been killed in the game
     }
 
 

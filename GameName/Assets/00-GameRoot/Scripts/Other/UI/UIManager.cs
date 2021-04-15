@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,9 +16,9 @@ public abstract class UIManager : MonoBehaviour
     }
     public virtual void SetUI() {}
 
-    public void PlayGame()          // can be used to restart game or play game from title menu
+    public void ReloadCurrentScene()          // can be used to restart game or play game from title menu
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     public void ReturnToIntroScene()          // can be used to restart game or play game from title menu
     {

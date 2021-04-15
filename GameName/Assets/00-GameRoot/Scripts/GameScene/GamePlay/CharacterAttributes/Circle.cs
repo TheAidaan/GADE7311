@@ -4,7 +4,7 @@ public class Circle : MonoBehaviour
     void Start()
     {
         BaseUnit circleUnit = new BaseUnit();
-        circleUnit.unitName = "cirlce";
+        circleUnit.unitName = "circle";
         circleUnit.unitLevel = 1;
         circleUnit.currentHP = circleUnit.maxHP = 2;
         circleUnit.damage = 2;

@@ -5,7 +5,7 @@ public class Square : MonoBehaviour
     void Start()
     {
         BaseUnit squareUnit = new BaseUnit();
-        squareUnit.unitName = "cirlce";
+        squareUnit.unitName = "Square";
         squareUnit.unitLevel = 1;
         squareUnit.currentHP = squareUnit.maxHP = 20;
 

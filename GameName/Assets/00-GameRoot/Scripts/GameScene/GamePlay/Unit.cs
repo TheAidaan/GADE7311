@@ -1,20 +1,9 @@
 using System.Collections;
 using UnityEngine;
 
-public class BaseUnit
-{
-    public int teamID;
-    public string unitName;
-    public int unitLevel;   
-
-    public int damage;
-
-    public int maxHP;
-    public int currentHP;
-}
 public class Unit : MonoBehaviour
 {
-    bool _turnCompleted;
+    bool _turnCompleted,_teamHead;
     BaseUnit _characterUnit = new BaseUnit();
     GameObject _uiCanvas;
 
@@ -45,6 +34,18 @@ public class Unit : MonoBehaviour
             return false;     
     }
 
+    public bool HeadUnitAlive()
+    {
+        SpriteRenderer render = gameObject.GetComponentInChildren<SpriteRenderer>();
+        return render.enabled; // if renderer is enabled, headUnit is alive and vice versa
+    }
+
+    public void ShowHeadUnit()
+    {
+        SpriteRenderer render = gameObject.GetComponentInChildren<SpriteRenderer>();
+        render.enabled = true;
+    }
+
     public void Activate()
     {
         _turnCompleted = false;
@@ -55,6 +56,10 @@ public class Unit : MonoBehaviour
     {
         GameManager.Static_AddToTeam(_characterUnit.teamID, this);
     }
+    public void SetAsHeadUnit()
+    {
+        _teamHead = true;
+    }
 
     #region Heal
 
@@ -63,8 +68,6 @@ public class Unit : MonoBehaviour
         _characterUnit.currentHP += 2;
         if (_characterUnit.currentHP > _characterUnit.maxHP)
             _characterUnit.currentHP = _characterUnit.maxHP;
-
-        Debug.Log(_characterUnit.currentHP);
 
         _turnCompleted = true;
     }
@@ -82,13 +85,17 @@ public class Unit : MonoBehaviour
         _characterUnit.currentHP -= damage;
         if (_characterUnit.currentHP <= 0)
         {
-            Destroy(gameObject);
-            GameManager.Static_RemoveFromTeam(_characterUnit.teamID, this);
+            if (_teamHead)
+            {
+                SpriteRenderer render = gameObject.GetComponentInChildren<SpriteRenderer>();
+                render.enabled = false;                                                     //hide until battle is done
+            }
+            else
+            {
+                Destroy(gameObject);
+                GameManager.Static_RemoveFromTeam(_characterUnit.teamID, this);
+            }     
         }
-           
-
-        Debug.Log(_characterUnit.unitName + " took " + damage + " damage");
-        Debug.Log(_characterUnit.currentHP);
     }
 
     IEnumerator WaitForInput ()
