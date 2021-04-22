@@ -1,112 +1,43 @@
-using UnityEngine;
 using System.Collections;
-
-
+using System.Collections.Generic;
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
+    LineRenderer _line;
+    public ActiveMarble _activeMarbles;
+    protected InactiveMarble[] _inactiveMarbles;
 
-    public static bool battleOver;
-
-    BaseTeams[] _teams = new BaseTeams[2]; // will  hold the necessary information for the two teams
-
-
-    
+    // Start is called before the first frame update
     void Awake()
     {
-        _teams[0] = new BaseTeams();
-        _teams[1] = new BaseTeams();
-        instance = this;
+        _line = GetComponent<LineRenderer>();
     }
 
-    void Start()
+    // Update is called once per frame
+    void Update()
     {
-        _teams[0].teamName = "bubu";
-        _teams[1].teamName = "sheba"; //must get the team name from somebody 
-        
-    }
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        var direction = Vector3.zero;
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Physics.Raycast(ray, out hit))
         {
-            StartCoroutine(WaitForDeactivation(0));
+            var ballPos = new Vector3(_activeMarbles.transform.position.x, 0.1f, _activeMarbles.transform.position.z);
+            var mousePos = new Vector3(hit.point.x, 0.1f, hit.point.z);
+            _line.SetPosition(0, mousePos);
+            _line.SetPosition(1, ballPos);
+            direction = (mousePos - ballPos).normalized;
         }
-    }
-
-    public IEnumerator WaitForDeactivation(int teamID)
-    {
-        bool done, hasActiveTeamMembers;
-        done = hasActiveTeamMembers = false;
-        if (_teams[teamID].unitMembers.Count != 0)
+        if (Input.GetMouseButtonDown(0) && _line.gameObject.activeSelf)
         {
-            foreach (Unit unit in _teams[teamID].unitMembers)
-            {
-                
-                unit.Activate();
-
-                while (!done) // essentially a "while true", but with a bool to break out naturally
-                {
-                    if (unit.Decativated())
-                    {
-                        done = true; // breaks the loop     
-                    } 
-                    yield return null; // wait until next frame, then continue execution from here (loop continues)
-                }
-            }
-            hasActiveTeamMembers = true;
+            _line.enabled = false;
+            _activeMarbles.GetComponent<Rigidbody>().velocity = direction * 1f;
         }
-        
-        if (_teams[teamID].headUnit.HeadUnitAlive()) //if false then the team has lost
+
+        if (_activeMarbles.GetComponent<Rigidbody>().velocity.magnitude < 0.3f)
         {
-            _teams[teamID].headUnit.Activate();
-            done = false;
-            while (!done) // essentially a "while true", but with a bool to break out naturally
-            {
-                if (_teams[teamID].headUnit.Decativated())
-                {
-                    done = true; // breaks the loop     
-                }
-                yield return null; // wait until next frame, then continue execution from here (loop continues)
-            }
+            _line.enabled = true;
         }
-        
-        if (hasActiveTeamMembers || _teams[teamID].headUnit.HeadUnitAlive()) //does this team have any members that can attack and does it still have a head unit?
-            StartCoroutine(WaitForDeactivation(Mathf.Abs(teamID - 1)));//if yes, then let the next team have their turn
-        else
-            EndBattle(Mathf.Abs(teamID - 1));// if no, declare the next team the winner
-    }
-
-    void EndBattle(int WinningTeamID)
-    {
-        InfoText.Static_SetOnScreenText(_teams[WinningTeamID].teamName + " has won");
-    }
-
-    void AddToTeam(int teamID, Unit unit)
-    {
-        if ( _teams[teamID].headUnit == null)
-        {
-            _teams[teamID].headUnit = unit;
-            unit.SetAsHeadUnit();
-        }     
-        else
-            _teams[teamID].unitMembers.Add(unit);
-    }
-    public void RemoveFromTeam(int id, Unit unit)
-    {
-        _teams[id].unitMembers.Remove(unit); //unit has been killed in the game
-    }
-
-
-        /*              PUBLIC STATICS              */
-
-    public static void Static_AddToTeam(int id, Unit unit)
-    {
-        instance.AddToTeam(id, unit);
-    }
-    public static void Static_RemoveFromTeam(int id, Unit unit)
-    {
-        instance.RemoveFromTeam(id, unit);
     }
 }

@@ -20,7 +20,7 @@ Texture2D:
   m_MipsStripped: 0
   m_TextureFormat: 1
   m_MipCount: 1
-  m_IsReadable: 1
+  m_IsReadable: 0
   m_IsPreProcessed: 0
   m_IgnoreMasterTextureLimit: 0
   m_StreamingMipmaps: 0
@@ -59,9 +59,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: Happy Family SDF - Green
   m_EditorClassIdentifier: 
-  hashCode: -582179871
+  hashCode: -433630854
   material: {fileID: 8881156692429144712}
-  materialHashCode: -714777439
+  materialHashCode: -1718510694
   m_Version: 1.1.0
   m_SourceFontFileGUID: 2ad38d5da9a8004408832662560aeac9
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 2ad38d5da9a8004408832662560aeac9, type: 3}
