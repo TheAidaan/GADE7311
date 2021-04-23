@@ -4,14 +4,29 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    Player[] _players = new Player[2];
+    public static GameManager instance;
     LineRenderer _line;
     public ActiveMarble _activeMarbles;
-    protected InactiveMarble[] _inactiveMarbles;
 
     // Start is called before the first frame update
     void Awake()
     {
+        instance = this;
         _line = GetComponent<LineRenderer>();
+    }
+
+    void Start()
+    {
+        _players[0] = new Player();
+        _players[0].playerName = "player1";
+
+        _players[1] = new Player();
+        _players[1].playerName = "player2";
+
+        int startingplayer;
+        startingplayer = Random.Range(1, 2);
+        InfoText.Static_SetOnScreenText("Select where you would like to start player" + startingplayer.ToString());
     }
 
     // Update is called once per frame
@@ -39,5 +54,23 @@ public class GameManager : MonoBehaviour
         {
             _line.enabled = true;
         }
+    }
+    void ActiveMarbleOutsideRing()
+    {
+        Debug.Log("ActiveMarble Left");
+    }
+    void InactiveMarbleOutsideRing()
+    {
+        Debug.Log("InactiveMarble Left");
+    }
+
+    public static void Static_ActiveMarbleOutsideRing()
+    {
+        instance.ActiveMarbleOutsideRing();
+
+    }
+    public static void Static_InactiveMarbleOutsideRing()
+    {
+        instance.InactiveMarbleOutsideRing();
     }
 }
