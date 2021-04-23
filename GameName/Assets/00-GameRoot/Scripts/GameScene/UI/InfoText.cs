@@ -5,7 +5,7 @@ public class InfoText : MonoBehaviour
 {
     TextMeshProUGUI _text;
     public static InfoText instance;
-    
+    // Start is called before the first frame update
     void Awake()
     {
         instance = this;
@@ -22,8 +22,6 @@ public class InfoText : MonoBehaviour
         _text.text = string.Empty;
         _text.enabled = false;
     }
-
-    /*              PUBLIC STATICS              */
 
     public static void Static_SetOnScreenText(string text)
     {

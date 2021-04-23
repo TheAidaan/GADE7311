@@ -1,20 +1,28 @@
+<<<<<<< HEAD
 using System.Collections;
 using System.Collections.Generic;
+=======
+>>>>>>> parent of aac973b (got turn-based controls)
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     Player[] _players = new Player[2];
     public static GameManager instance;
+<<<<<<< HEAD
     LineRenderer _line;
     public ActiveMarble _activeMarbles;
 
     // Start is called before the first frame update
+=======
+    
+>>>>>>> parent of aac973b (got turn-based controls)
     void Awake()
     {
         instance = this;
         _line = GetComponent<LineRenderer>();
     }
+<<<<<<< HEAD
 
     void Start()
     {
@@ -72,5 +80,15 @@ public class GameManager : MonoBehaviour
     public static void Static_InactiveMarbleOutsideRing()
     {
         instance.InactiveMarbleOutsideRing();
+=======
+    void SetCurrentTurn()
+    {
+
+    }
+
+    public static void Static_SetCurrentTurn()
+    {
+        instance.SetCurrentTurn();
+>>>>>>> parent of aac973b (got turn-based controls)
     }
 }
