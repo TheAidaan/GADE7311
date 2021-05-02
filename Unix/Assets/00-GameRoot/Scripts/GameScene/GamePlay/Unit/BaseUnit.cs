@@ -5,12 +5,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class BaseUnit : MonoBehaviour
-{
+{ public Tile currentTile = null;
     #region Unit setup
     public Color teamColor = Color.clear;
 
     Tile _originalTile = null;
-    Tile _currentTile = null;
+   
 
     UnitManager _unitManager;
 
@@ -25,10 +25,10 @@ public class BaseUnit : MonoBehaviour
     public void Place(Tile newTile)
     {
         //tile
-        _currentTile = newTile;
+        currentTile = newTile;
         _originalTile = newTile;
 
-        _currentTile.currentUnit = this;
+        currentTile.currentUnit = this;
 
         //object
         transform.position = newTile.transform.position;
@@ -39,35 +39,35 @@ public class BaseUnit : MonoBehaviour
     #region Unit Movement
     //Movement Variables
     public Vector3Int movement = Vector3Int.one;
-    List<Tile> _highlightedTiles = new List<Tile>();
+    public List<Tile> highlightedTiles = new List<Tile>();
 
     Tile _targetTile = null;
     bool _selected;
-    void CreateTilePath(int xDirection, int zDirection, int movement)
+    void CreateTilePath(int xDirection, int yDirection, int movement)
     {
         //TargetPosition
-        int currentX = _currentTile.boardPosition.x;
-        int currentZ = _currentTile.boardPosition.z; // z as in world point. But is the Y point in the boards 2D array 
+        int currentX = currentTile.boardPosition.x;
+        int currentY = currentTile.boardPosition.z; // z represents the world point, but it also represents the y point in the 2D array. 
 
         //Check each tile
         for (int i = 1; i <= movement; i++)
         {
             currentX += xDirection;
-            currentZ += zDirection;
+            currentY += yDirection;
 
             TileState tileState = TileState.None;
-            tileState = _currentTile.board.ValidateTile(currentX, currentZ, this);
+            tileState = currentTile.board.ValidateTile(currentX, currentY, this);
 
             if (tileState == TileState.Enemy)
             {
-                _highlightedTiles.Add(_currentTile.board.allTiles[currentX, currentZ]); // add tiles with an enemy on them as a moveable place on target on the board.
+                highlightedTiles.Add(currentTile.board.allTiles[currentX, currentY]); // add tiles with an enemy on them as a moveable place on target on the board.
                 break;
             }
 
             if (tileState != TileState.Free) //if the tile is out of bounds or has a friendly on it, then break the look and don't add anything to the available target tiles.
                 break;
 
-            _highlightedTiles.Add(_currentTile.board.allTiles[currentX, currentZ]); //add the tile if it is free
+            highlightedTiles.Add(currentTile.board.allTiles[currentX, currentY]); //add the tile if it is free
 
         }
     }
@@ -93,17 +93,17 @@ public class BaseUnit : MonoBehaviour
 
     void ShowTiles()
     {
-        foreach (Tile tile in _highlightedTiles)
+        foreach (Tile tile in highlightedTiles)
             tile.HighLight();
             
     }
 
     void ClearTiles()
     {
-        foreach (Tile tile in _highlightedTiles)
+        foreach (Tile tile in highlightedTiles)
             tile.StopHighLight();
 
-        _highlightedTiles.Clear();
+        highlightedTiles.Clear();
     }
 
     public void Reset() //Resets peices, keeps board the same
@@ -114,7 +114,7 @@ public class BaseUnit : MonoBehaviour
 
     public void Kill() // CHANGE
     {
-        _currentTile.currentUnit = null;
+        currentTile.currentUnit = null;
 
         gameObject.SetActive(false);
     }
@@ -124,14 +124,14 @@ public class BaseUnit : MonoBehaviour
         _targetTile.RemovePiece(); //CHANGE (CHECK IF UNIT IS ALREADY THERE)
 
         //clear the current tile
-        _currentTile.currentUnit = null;
+        currentTile.currentUnit = null;
 
         //change current tile
-        _currentTile = _targetTile;
-        _currentTile.currentUnit = this;
+        currentTile = _targetTile;
+        currentTile.currentUnit = this;
 
         //Move on board
-        transform.position = _currentTile.transform.position;
+        transform.position = currentTile.transform.position;
         _targetTile = null;
 
 
@@ -169,7 +169,7 @@ public class BaseUnit : MonoBehaviour
             {
                 transform.position = new Vector3(hit.point.x, transform.position.y, hit.point.z);// follow the ray(the cursor)
 
-                foreach (Tile tile in _highlightedTiles) 
+                foreach (Tile tile in highlightedTiles) 
                 {
                     if (hit.transform.gameObject.GetComponent<Tile>() == tile) // is the cursor over one of he highlighted tiles?
                     {
@@ -181,26 +181,22 @@ public class BaseUnit : MonoBehaviour
                 }
 
             }
-                
+
+            if (Input.GetMouseButtonDown(0) && _targetTile != null) // right button clicked
+            {
+                followMouse = false; //stop following the mouse
+             
+                Move(); // go to target location;
+                Deselect();
+                _unitManager.SwitchSides(teamColor);
+            }
+
 
             if (Input.GetMouseButtonDown(1)) // right button clicked
             {
-                followMouse = false; //stop following the mouse
-                if (_targetTile != null) // got somewhere to go?
-                {
-                    Move(); // go to target location;
-                }
-                else // nowhere to go? just go home
-                {
-                    transform.position = originalPosition; // go back to where you came from
-                }
-
-                
-                _selected = false;
-                ClearTiles(); //hide
-                GetComponent<BoxCollider>().enabled = true;
-
-                _unitManager.SwitchSides(teamColor);
+                transform.position = originalPosition; // go back to where you came from
+                followMouse = false;
+                Deselect();
             }
 
             yield return null;
@@ -216,8 +212,16 @@ public class BaseUnit : MonoBehaviour
 
     }
 
+    void Deselect()
+    {
+        _selected = false;
+        ClearTiles(); //hide
+        GetComponent<BoxCollider>().enabled = true;
+    }
+
     #endregion
 
     #endregion
+
 
 }

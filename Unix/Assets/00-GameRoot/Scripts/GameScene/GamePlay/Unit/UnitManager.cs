@@ -13,8 +13,8 @@ public class UnitManager : MonoBehaviour
 
     string[] _unitOrder = new string[12]
     {
-                "R","M","W","M","R",
-            "M","M","R","W","R","M","M"
+                "R","M","W","M","R","M",
+                "M","R","W","R","M","M"
     };
 
     Dictionary<string, Type> unitLibrary = new Dictionary<string, Type>()
