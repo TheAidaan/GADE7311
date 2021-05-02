@@ -66,13 +66,13 @@ public class UnitManager : MonoBehaviour
         return newUnits;
     }
 
-    void PlaceUnits(int pawnRow,int royaltyRow,List<BaseUnit> units, Board board)
+    void PlaceUnits(int secondRow,int firstRow,List<BaseUnit> units, Board board)
     {
         for (int i = 0; i < 6; i++)
         {
-            units[i].Place(board.allTiles[i, pawnRow]);
+            units[i].Place(board.allTiles[i, secondRow]);
 
-            units[i+6].Place(board.allTiles[i, royaltyRow]);
+            units[i+6].Place(board.allTiles[i, firstRow]);
         }
     }
 

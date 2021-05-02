@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class BaseUnit : MonoBehaviour
-{ public Tile currentTile = null;
+public abstract class BaseUnit : MonoBehaviour
+{ 
+    public Tile currentTile = null;
+
     #region Unit setup
     public Color teamColor = Color.clear;
 
@@ -20,6 +22,8 @@ public class BaseUnit : MonoBehaviour
         teamColor = TeamColor;
 
         GetComponent<Renderer>().material.color = unitColor;
+
+        
     }
 
     public void Place(Tile newTile)
@@ -42,7 +46,7 @@ public class BaseUnit : MonoBehaviour
     public List<Tile> highlightedTiles = new List<Tile>();
 
     Tile _targetTile = null;
-    bool _selected;
+    public bool selected;
     void CreateTilePath(int xDirection, int yDirection, int movement)
     {
         //TargetPosition
@@ -91,14 +95,14 @@ public class BaseUnit : MonoBehaviour
         CreateTilePath(1, -1, movement.y);
     }
 
-    void ShowTiles()
+    public void ShowHighlightedTiles()
     {
         foreach (Tile tile in highlightedTiles)
             tile.HighLight();
             
     }
 
-    void ClearTiles()
+    public void HideHighlightedTiles()
     {
         foreach (Tile tile in highlightedTiles)
             tile.StopHighLight();
@@ -144,25 +148,24 @@ public class BaseUnit : MonoBehaviour
         {
             // Test for cells
             CheckPath();
+            ShowHighlightedTiles(); //show highlighted tiles
+        }   
+    }
 
-            ShowTiles(); //show tiles
-        }
-        
+    private void OnMouseExit()
+    {
+        if(_currentState != hoverState) //don't clear the highlighted tiles while the player is draging a unit
+            HideHighlightedTiles();
     }
 
     public void Clicked()
     {
-        StartCoroutine(Drag(transform.position));    
+        TransitionToState(hoverState);  
     }
 
-    IEnumerator Drag(Vector3 originalPosition)
+    public void Drag()
     {
-        _selected = true;
-        bool followMouse = true;
-
-        while (followMouse)
-        {
-            GetComponent<BoxCollider>().enabled = false;
+        
 
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit)) // did the ray hit anything?
@@ -180,48 +183,54 @@ public class BaseUnit : MonoBehaviour
                     _targetTile = null; 
                 }
 
-            }
-
             if (Input.GetMouseButtonDown(0) && _targetTile != null) // right button clicked
             {
-                followMouse = false; //stop following the mouse
-             
+
                 Move(); // go to target location;
-                Deselect();
+                TransitionToState(idleState);
                 _unitManager.SwitchSides(teamColor);
             }
 
 
             if (Input.GetMouseButtonDown(1)) // right button clicked
-            {
-                transform.position = originalPosition; // go back to where you came from
-                followMouse = false;
-                Deselect();
+            { 
+                TransitionToState(idleState);
             }
-
-            yield return null;
         }
 
 
     }
 
-    public void OnMouseExit() //EndDrag
-    {
-        if (!_selected)
-            ClearTiles();//hide
-
-    }
-
-    void Deselect()
-    {
-        _selected = false;
-        ClearTiles(); //hide
-        GetComponent<BoxCollider>().enabled = true;
-    }
-
     #endregion
 
     #endregion
 
+    #region States and Interactions
+    UnitBaseState _currentState;
+    public UnitBaseState currentState { get { return _currentState; } }
 
+
+    public readonly UnitAttackState attackState = new UnitAttackState(); // attack enemies
+    public readonly UnitHoverState hoverState = new UnitHoverState();  // hover over enemies
+    public readonly UnitIdleState idleState = new UnitIdleState(); // scan for enemies
+
+    void Start()
+    {
+        TransitionToState(idleState);
+    }
+    private void Update()
+    {
+        currentState.Update(this);
+    }
+    void TransitionToState(UnitBaseState state)
+    {
+        _currentState = state;
+        _currentState.EnterState(this);
+    }
+    #endregion
+
+    #region abstract Methods
+    public virtual void Attack() { }
+    public virtual void CheckFotEnemies() { }
+    #endregion
 }
