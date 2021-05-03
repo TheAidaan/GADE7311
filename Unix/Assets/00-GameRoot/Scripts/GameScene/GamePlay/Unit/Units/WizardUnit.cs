@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class WizardUnit : BaseUnit
-{
+{ 
+    List<BaseUnit> _targets = new List<BaseUnit>();
     public override void Setup(Color TeamColor, Color32 unitColor, UnitManager unitManager)
     {
+        maxHealth = 15;
+
         base.Setup(TeamColor, unitColor, unitManager);
 
         GetComponent<MeshFilter>().mesh = Resources.Load<Mesh>("Wizard");
         gameObject.AddComponent<BoxCollider>();
     }
+
+    #region Movement
     void CreateTilePath(int flipper) //different to the BaseUnits createTilePath
     {
         int currentX = currentTile.boardPosition.x;
@@ -28,7 +33,7 @@ public class WizardUnit : BaseUnit
         TileState tileState = TileState.None;
         tileState = currentTile.board.ValidateTile(targetX, targetY, this);
         
-        if (tileState != TileState.Friendly && tileState != TileState.OutOfBounds)
+        if (tileState != TileState.Taken && tileState != TileState.OutOfBounds)
             highlightedTiles.Add(currentTile.board.allTiles[targetX, targetY]);
 
     }
@@ -37,5 +42,44 @@ public class WizardUnit : BaseUnit
     {
         CreateTilePath(1); // top half
         CreateTilePath(-1);//bottom half
+    }
+    #endregion
+
+    public override void CheckForEnemies()
+    {
+        RaycastHit[] hit = Physics.SphereCastAll(transform.position, 15f, Vector3.down);
+        foreach (RaycastHit Hit in hit)
+        {
+            if(Hit.transform.gameObject.layer != transform.gameObject.layer)
+            {
+                BaseUnit target = Hit.transform.gameObject.GetComponent<BaseUnit>();
+                if (target != null)
+                {
+                    _targets.Add(target);
+                    TransitionToState(attackState);
+                }
+            }         
+        } 
+    }
+
+    public override void Attack()
+    {
+        List<BaseUnit> newTargets = new List<BaseUnit>(); 
+
+        foreach (BaseUnit target in _targets)
+        {
+            if (target.gameObject.activeSelf) //if gameObject is still active
+            {
+                newTargets.Add(target);
+                target.TakeDamage(4);       
+            }     
+        }
+
+        _targets = newTargets; // i wanted to remove allthe inactive fromt the main _targets list in the foreach loop but, i got an error
+        
+        if (_targets.Count == 0) // if all targets have been removed
+        {
+            TransitionToState(idleState);
+        }
     }
 }

@@ -29,10 +29,10 @@ public class UnitManager : MonoBehaviour
     public void Setup(Board board)
     {
         //Create Player1 units
-        Player1Units = CreateUnits(Color.red, new Color32(80, 124, 159, 255), board);
+        Player1Units = CreateUnits(Color.red, new Color32(210, 95, 64, 255), board);
 
         //Create Player2 units
-        Player2Units = CreateUnits(Color.blue, new Color32(210, 95, 64, 255), board);
+        Player2Units = CreateUnits(Color.blue, new Color32(80, 124, 159, 255) , board);
 
         PlaceUnits(1, 0, Player1Units, board);
         PlaceUnits(6, 7, Player2Units, board);
@@ -85,7 +85,13 @@ public class UnitManager : MonoBehaviour
         string tag = value ? "Interactive" : "Untagged";
 
         foreach (BaseUnit unit in allUnits)
-            unit.gameObject.tag = tag;
+        {
+            if (unit.gameObject.activeSelf)
+            {
+                unit.gameObject.tag = tag;
+            }
+        }
+            
     }
     public void SwitchSides(Color color)
     {

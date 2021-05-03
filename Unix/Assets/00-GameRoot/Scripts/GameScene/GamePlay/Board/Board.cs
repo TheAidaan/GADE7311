@@ -4,8 +4,7 @@ using UnityEngine;
 public enum TileState
 {
     None,
-    Friendly,
-    Enemy,
+    Taken,
     Free,
     OutOfBounds
 }
@@ -58,12 +57,12 @@ public class Board : MonoBehaviour
 
         Tile targetTile = allTiles[targetX, targetY]; // get the specific tile
 
-        if (targetTile.currentUnit != null)
+        if (targetTile.currentUnit != null) // is there a unit on the target tile?
         {
-            if (checkingUnit.teamColor == targetTile.currentUnit.teamColor)
-                return TileState.Friendly;
-            else
-                return TileState.Enemy;
+            if (targetTile.currentUnit.gameObject.activeSelf) // is that unit active
+            {
+                    return TileState.Taken;
+            }  
         }
 
         return TileState.Free;

@@ -2,10 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public abstract class BaseUnit : MonoBehaviour
-{ 
+{
+    public int maxHealth;
+    int _health;
     public Tile currentTile = null;
 
     #region Unit setup
@@ -21,9 +22,12 @@ public abstract class BaseUnit : MonoBehaviour
         _unitManager = unitManager;
         teamColor = TeamColor;
 
+        int layer = teamColor == Color.red ? 3:6;
+        gameObject.layer = layer;
         GetComponent<Renderer>().material.color = unitColor;
 
-        
+        _health = maxHealth;
+
     }
 
     public void Place(Tile newTile)
@@ -61,12 +65,6 @@ public abstract class BaseUnit : MonoBehaviour
 
             TileState tileState = TileState.None;
             tileState = currentTile.board.ValidateTile(currentX, currentY, this);
-
-            if (tileState == TileState.Enemy)
-            {
-                highlightedTiles.Add(currentTile.board.allTiles[currentX, currentY]); // add tiles with an enemy on them as a moveable place on target on the board.
-                break;
-            }
 
             if (tileState != TileState.Free) //if the tile is out of bounds or has a friendly on it, then break the look and don't add anything to the available target tiles.
                 break;
@@ -222,15 +220,24 @@ public abstract class BaseUnit : MonoBehaviour
     {
         currentState.Update(this);
     }
-    void TransitionToState(UnitBaseState state)
+    public void TransitionToState(UnitBaseState state)
     {
         _currentState = state;
         _currentState.EnterState(this);
+    }
+
+    public void TakeDamage(int damage)
+    {
+        _health -= damage;
+        if (_health <= 0)
+            gameObject.SetActive(false);
+
+        Debug.Log(_health);
     }
     #endregion
 
     #region abstract Methods
     public virtual void Attack() { }
-    public virtual void CheckFotEnemies() { }
+    public virtual void CheckForEnemies() { }
     #endregion
 }
