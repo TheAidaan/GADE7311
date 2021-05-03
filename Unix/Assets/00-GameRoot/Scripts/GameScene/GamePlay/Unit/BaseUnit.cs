@@ -13,13 +13,10 @@ public abstract class BaseUnit : MonoBehaviour
     public Color teamColor = Color.clear;
 
     Tile _originalTile = null;
-   
+ 
 
-    UnitManager _unitManager;
-
-    public virtual void Setup(Color TeamColor, Color32 unitColor, UnitManager unitManager)
+    public virtual void Setup(Color TeamColor, Color32 unitColor)
     {
-        _unitManager = unitManager;
         teamColor = TeamColor;
 
         int layer = teamColor == Color.red ? 3:6;
@@ -186,7 +183,7 @@ public abstract class BaseUnit : MonoBehaviour
 
                 Move(); // go to target location;
                 TransitionToState(idleState);
-                _unitManager.SwitchSides(teamColor);
+                UnitManager.Static_SwitchSides(teamColor);
             }
 
 
@@ -230,7 +227,11 @@ public abstract class BaseUnit : MonoBehaviour
     {
         _health -= damage;
         if (_health <= 0)
+        {
             gameObject.SetActive(false);
+            UnitManager.Static_UnitDeath(teamColor);
+        }
+            
 
         Debug.Log(_health);
     }

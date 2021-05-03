@@ -5,11 +5,11 @@ using UnityEngine;
 public class WizardUnit : BaseUnit
 { 
     List<BaseUnit> _targets = new List<BaseUnit>();
-    public override void Setup(Color TeamColor, Color32 unitColor, UnitManager unitManager)
+    public override void Setup(Color TeamColor, Color32 unitColor)
     {
         maxHealth = 15;
 
-        base.Setup(TeamColor, unitColor, unitManager);
+        base.Setup(TeamColor, unitColor);
 
         GetComponent<MeshFilter>().mesh = Resources.Load<Mesh>("Wizard");
         gameObject.AddComponent<BoxCollider>();

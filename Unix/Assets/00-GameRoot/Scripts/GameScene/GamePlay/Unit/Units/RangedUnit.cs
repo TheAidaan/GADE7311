@@ -5,11 +5,11 @@ using UnityEngine;
 public class RangedUnit : BaseUnit
 {
     BaseUnit _target;
-    public override void Setup(Color TeamColor, Color32 unitColor, UnitManager unitManager)
+    public override void Setup(Color TeamColor, Color32 unitColor)
     {
         maxHealth = 18;
 
-        base.Setup(TeamColor, unitColor, unitManager);
+        base.Setup(TeamColor, unitColor);
 
 
         movement = new Vector3Int(0, 7, 0);

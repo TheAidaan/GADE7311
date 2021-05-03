@@ -5,10 +5,10 @@ using UnityEngine;
 public class MeleeUnit : BaseUnit
 {
     BaseUnit _target;
-    public override void Setup(Color TeamColor, Color32 unitColor, UnitManager unitManager)
+    public override void Setup(Color TeamColor, Color32 unitColor)
     {
         maxHealth = 20;
-        base.Setup(TeamColor, unitColor, unitManager);
+        base.Setup(TeamColor, unitColor);
 
         movement = new Vector3Int(1, 1, 1);
 

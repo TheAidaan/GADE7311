@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
     {
         Board board = GetComponent<Board>();
         board.Create();
-        GetComponent<UnitManager>().Setup(board);
+        UnitManager.Static_Setup(board);
     }
 
     private void Update()

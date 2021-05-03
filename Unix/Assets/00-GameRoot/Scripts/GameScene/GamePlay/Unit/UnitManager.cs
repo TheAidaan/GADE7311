@@ -4,12 +4,15 @@ using UnityEngine;
 
 public class UnitManager : MonoBehaviour
 {
-    public bool gameOver;
+    public static UnitManager instance;
+
+    bool _gameOver;
 
     public GameObject unitPrefab;
 
-    List<BaseUnit> Player1Units = null;
-    List<BaseUnit> Player2Units = null;
+    List<BaseUnit> _redTeamUnits = null;
+    List<BaseUnit> _blueTeamUnits = null;
+    int _blueTeamScore, _redTeamScore;
 
     string[] _unitOrder = new string[12]
     {
@@ -25,17 +28,27 @@ public class UnitManager : MonoBehaviour
 
     };
 
+    private void Awake()
+    {
+        instance = this;
+    }
+
     #region Unit setup
-    public void Setup(Board board)
+
+    public static void Static_Setup(Board board)
+    {
+        instance.Setup(board);
+    }
+    void Setup(Board board)
     {
         //Create Player1 units
-        Player1Units = CreateUnits(Color.red, new Color32(210, 95, 64, 255), board);
+        _redTeamUnits = CreateUnits(Color.red, new Color32(210, 95, 64, 255), board);
 
         //Create Player2 units
-        Player2Units = CreateUnits(Color.blue, new Color32(80, 124, 159, 255) , board);
+        _blueTeamUnits = CreateUnits(Color.blue, new Color32(80, 124, 159, 255) , board);
 
-        PlaceUnits(1, 0, Player1Units, board);
-        PlaceUnits(6, 7, Player2Units, board);
+        PlaceUnits(1, 0, _redTeamUnits, board);
+        PlaceUnits(6, 7, _blueTeamUnits, board);
 
         SwitchSides(Color.red);
     }
@@ -60,7 +73,7 @@ public class UnitManager : MonoBehaviour
             newUnits.Add(newUnit);
 
             //setup peice
-            newUnit.Setup(teamColor, unitColor, this);
+            newUnit.Setup(teamColor, unitColor);
         }
 
         return newUnits;
@@ -93,34 +106,58 @@ public class UnitManager : MonoBehaviour
         }
             
     }
-    public void SwitchSides(Color color)
+    public static void Static_SwitchSides(Color color)
     {
-        if (gameOver)
-        {
-
-            ResetUnits();//reset pieces to go back to where they cam from and keep board the same
-
-            
-            gameOver = false;//game is not over anymore
-
-            color = Color.red; //let the whiteteam go first
-
-        }
+        instance.SwitchSides(color);
+    }
+    void SwitchSides(Color color)
+    {
+       
 
         bool isRedTurn = color == Color.red ? true : false;
 
         //set the interactivity
-        SetInteractive(Player1Units, !isRedTurn);
-        SetInteractive(Player2Units, isRedTurn);
+        SetInteractive(_redTeamUnits, !isRedTurn);
+        SetInteractive(_blueTeamUnits, isRedTurn);
+    }
+    void CheckGameState()
+    {
+        if (_gameOver)
+        {
+            ResetGame();
+        }
+    }
+    void ResetGame()
+    {
+        ResetUnits();//reset pieces to go back to where they cam from and keep board the same
+
+        _gameOver = false;//game is not over anymore
+        _redTeamScore = _blueTeamScore = 0;
     }
 
-    public void ResetUnits()
+    void ResetUnits()
     {
-        foreach (BaseUnit unit in Player1Units) //reset player 1 units
+        foreach (BaseUnit unit in _redTeamUnits) //reset player 1 units
             unit.Reset();
 
-        foreach (BaseUnit unit in Player2Units)//reset player 1 units
+        foreach (BaseUnit unit in _blueTeamUnits)//reset player 1 units
             unit.Reset();
+    }
+    public static void Static_UnitDeath(Color color)
+    {
+        instance.UnitDeath(color);
+    }
+    void UnitDeath(Color color)
+    {
+        if (color == Color.red)
+            _blueTeamScore += 1;
+        else
+            _redTeamScore += 1;
+
+        if (_redTeamScore == 12 || _blueTeamScore == 12)
+            _gameOver = true;
+
+        CheckGameState();
     }
     #endregion
 }
