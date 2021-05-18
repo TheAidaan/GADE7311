@@ -5,11 +5,11 @@ using UnityEngine;
 public class WizardUnit : BaseUnit
 { 
     List<BaseUnit> _targets = new List<BaseUnit>();
-    public override void Setup(Color TeamColor, Color32 unitColor)
+    public override void Setup(Color TeamColor, Color32 unitColor, char ChararcterCode)
     {
         maxHealth = 15;
-
-        base.Setup(TeamColor, unitColor);
+        coolDown = 4f;
+        base.Setup(TeamColor, unitColor, ChararcterCode);
 
         GetComponent<MeshFilter>().mesh = Resources.Load<Mesh>("Wizard");
         gameObject.AddComponent<BoxCollider>();
@@ -38,7 +38,7 @@ public class WizardUnit : BaseUnit
 
     }
 
-    protected override void CheckPath()
+    public override void CheckPath()
     {
         CreateTilePath(1); // top half
         CreateTilePath(-1);//bottom half
@@ -62,7 +62,7 @@ public class WizardUnit : BaseUnit
         } 
     }
 
-    public override void Attack()
+    public override IEnumerator CoolDown()
     {
         List<BaseUnit> newTargets = new List<BaseUnit>(); 
 
@@ -71,7 +71,7 @@ public class WizardUnit : BaseUnit
             if (target.gameObject.activeSelf) //if gameObject is still active
             {
                 newTargets.Add(target);
-                target.TakeDamage(4);       
+                StartCoroutine(target.TakeDamage(4)); //attack
             }     
         }
 
@@ -81,5 +81,7 @@ public class WizardUnit : BaseUnit
         {
             TransitionToState(idleState);
         }
+
+        yield return base.CoolDown();
     }
 }

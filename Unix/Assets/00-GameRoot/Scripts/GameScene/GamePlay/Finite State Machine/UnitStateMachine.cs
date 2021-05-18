@@ -1,22 +1,19 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class UnitBaseState : BaseSate<BaseUnit>
 {
-    public override void EnterState(BaseUnit script)
-    {
-        Debug.Log("Unit State machine enter");
-    }
-    public override void Update(BaseUnit script)
-    {
-        Debug.Log("Unit State machine update");
-    }
+    public override void EnterState(BaseUnit script) { }
+
+    public override void Update(BaseUnit script) { }
+
 }
 
 public class UnitAttackState : UnitBaseState
 {
-    public override void Update(BaseUnit script)
+    public override void EnterState(BaseUnit script)
     {
         script.Attack(); // attack the enemy unit 
     }
@@ -37,6 +34,7 @@ public class UnitIdleState : UnitBaseState
 {
     public override void EnterState(BaseUnit script)
     {
+        script.transform.eulerAngles = script.rotation;
         script.transform.position = script.currentTile.transform.position; // go back to where you came from
         script.HideHighlightedTiles();
         script.gameObject.GetComponent<BoxCollider>().enabled = true;

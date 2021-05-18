@@ -6,6 +6,7 @@ using UnityEngine;
 public abstract class BaseUnit : MonoBehaviour
 {
     public int maxHealth;
+    public float coolDown;
     int _health;
     public Tile currentTile = null;
 
@@ -13,10 +14,15 @@ public abstract class BaseUnit : MonoBehaviour
     public Color teamColor = Color.clear;
 
     Tile _originalTile = null;
- 
 
-    public virtual void Setup(Color TeamColor, Color32 unitColor)
+    public Vector3 rotation;
+
+    char chararcterCode;
+
+
+    public virtual void Setup(Color TeamColor, Color32 unitColor, char ChararcterCode)
     {
+        chararcterCode = ChararcterCode;
         teamColor = TeamColor;
 
         int layer = teamColor == Color.red ? 3:6;
@@ -25,6 +31,7 @@ public abstract class BaseUnit : MonoBehaviour
 
         _health = maxHealth;
 
+        rotation = transform.rotation.eulerAngles;
     }
 
     public void Place(Tile newTile)
@@ -44,9 +51,9 @@ public abstract class BaseUnit : MonoBehaviour
     #region Unit Movement
     //Movement Variables
     public Vector3Int movement = Vector3Int.one;
-    public List<Tile> highlightedTiles = new List<Tile>();
+    public List<Tile> highlightedTiles = new List<Tile>(); // all possibile moves list
 
-    Tile _targetTile = null;
+
     public bool selected;
     void CreateTilePath(int xDirection, int yDirection, int movement)
     {
@@ -71,7 +78,7 @@ public abstract class BaseUnit : MonoBehaviour
         }
     }
 
-    protected virtual void CheckPath()
+    public virtual void CheckPath()
     {
         //horizantal 
         CreateTilePath(1, 0, movement.x);
@@ -87,7 +94,24 @@ public abstract class BaseUnit : MonoBehaviour
 
         //horizantal 
         CreateTilePath(-1, -1, movement.y);
-        CreateTilePath(1, -1, movement.y);
+        CreateTilePath(1, -1, movement.y);   
+    }
+    public virtual void Move(Tile targetTile)
+    {
+        //clear the current tile
+        currentTile.currentUnit = null;
+
+        //change current tile
+        currentTile = targetTile;
+        currentTile.currentUnit = this;
+
+        //Move on board
+        transform.position = currentTile.transform.position;
+        targetTile = null;
+
+        GameManager.Static_SwitchSides(teamColor);
+
+        //HideHighlightedTiles();
     }
 
     public void ShowHighlightedTiles()
@@ -107,34 +131,11 @@ public abstract class BaseUnit : MonoBehaviour
 
     public void Reset() //Resets peices, keeps board the same
     {
-        Kill();
+        gameObject.SetActive(true);
         Place(_originalTile);
     }
 
-    public void Kill() // CHANGE
-    {
-        currentTile.currentUnit = null;
-
-        gameObject.SetActive(false);
-    }
-
-    protected virtual void Move()
-    {
-        _targetTile.RemovePiece(); //CHANGE (CHECK IF UNIT IS ALREADY THERE)
-
-        //clear the current tile
-        currentTile.currentUnit = null;
-
-        //change current tile
-        currentTile = _targetTile;
-        currentTile.currentUnit = this;
-
-        //Move on board
-        transform.position = currentTile.transform.position;
-        _targetTile = null;
-
-
-    }
+    
 
     #region Mouse events
     public void OnMouseOver()
@@ -143,7 +144,7 @@ public abstract class BaseUnit : MonoBehaviour
         {
             // Test for cells
             CheckPath();
-            ShowHighlightedTiles(); //show highlighted tiles
+            ShowHighlightedTiles(); //show highlighted tile
         }   
     }
 
@@ -160,40 +161,36 @@ public abstract class BaseUnit : MonoBehaviour
 
     public void Drag()
     {
-        
+        Tile targetTile = null;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit)) // did the ray hit anything?
+        {
+            transform.position = new Vector3(hit.point.x, transform.position.y, hit.point.z);// follow the ray(the cursor)
 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit)) // did the ray hit anything?
+            foreach (Tile tile in highlightedTiles)
             {
-                transform.position = new Vector3(hit.point.x, transform.position.y, hit.point.z);// follow the ray(the cursor)
-
-                foreach (Tile tile in highlightedTiles) 
+                if (hit.transform.gameObject.GetComponent<Tile>() == tile) // is the cursor over one of he highlighted tiles?
                 {
-                    if (hit.transform.gameObject.GetComponent<Tile>() == tile) // is the cursor over one of he highlighted tiles?
-                    {
-                        _targetTile = tile;//make that tile the target tile 
-                        break;// only one can be the target 
-                    }
-
-                    _targetTile = null; 
+                    targetTile = tile;//make that tile the target tile 
+                    break;// only one can be the target 
                 }
 
-            if (Input.GetMouseButtonDown(0) && _targetTile != null) // right button clicked
-            {
-
-                Move(); // go to target location;
-                TransitionToState(idleState);
-                UnitManager.Static_SwitchSides(teamColor);
+                targetTile = null;
             }
 
+            if (Input.GetMouseButtonDown(0) && targetTile != null) // right button clicked
+            {
+
+                Move(targetTile); // go to target location;
+                TransitionToState(idleState);
+
+            }
 
             if (Input.GetMouseButtonDown(1)) // right button clicked
-            { 
+            {
                 TransitionToState(idleState);
             }
         }
-
-
     }
 
     #endregion
@@ -201,6 +198,7 @@ public abstract class BaseUnit : MonoBehaviour
     #endregion
 
     #region States and Interactions
+
     UnitBaseState _currentState;
     public UnitBaseState currentState { get { return _currentState; } }
 
@@ -223,22 +221,28 @@ public abstract class BaseUnit : MonoBehaviour
         _currentState.EnterState(this);
     }
 
-    public void TakeDamage(int damage)
+    public IEnumerator TakeDamage(int damage)
     {
         _health -= damage;
+        gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
         if (_health <= 0)
         {
             gameObject.SetActive(false);
-            UnitManager.Static_UnitDeath(teamColor);
+            GameManager.Static_UnitDeath(teamColor, chararcterCode);
         }
-            
+        yield return new WaitForSeconds(.5f);
+        gameObject.GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
 
-        Debug.Log(_health);
     }
     #endregion
 
     #region abstract Methods
-    public virtual void Attack() { }
+    public virtual void Attack() { StartCoroutine(CoolDown()); }
+    public virtual IEnumerator CoolDown() 
+    { 
+        yield return new WaitForSeconds(coolDown); 
+        StartCoroutine(CoolDown()); 
+    }
     public virtual void CheckForEnemies() { }
     #endregion
 }

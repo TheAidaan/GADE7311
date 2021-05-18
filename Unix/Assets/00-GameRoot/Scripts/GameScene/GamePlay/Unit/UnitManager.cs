@@ -4,42 +4,29 @@ using UnityEngine;
 
 public class UnitManager : MonoBehaviour
 {
-    public static UnitManager instance;
-
-    bool _gameOver;
 
     public GameObject unitPrefab;
 
     List<BaseUnit> _redTeamUnits = null;
     List<BaseUnit> _blueTeamUnits = null;
-    int _blueTeamScore, _redTeamScore;
 
-    string[] _unitOrder = new string[12]
+    char[] _unitOrder = new char[12]
     {
-                "R","M","W","M","R","M",
-                "M","R","W","R","M","M"
+                'R','M','W','M','R','M',
+                'M','R','W','R','M','M'
     };
 
-    Dictionary<string, Type> unitLibrary = new Dictionary<string, Type>()
+    Dictionary<char, Type> _unitLibrary = new Dictionary<char, Type>()
     {
-        {"R", typeof(RangedUnit) },
-        {"M", typeof(MeleeUnit) },
-        {"W", typeof(WizardUnit) },
+        {'M', typeof(MeleeUnit)  },
+        {'R', typeof(RangedUnit) },
+        {'W', typeof(WizardUnit) },
 
     };
-
-    private void Awake()
-    {
-        instance = this;
-    }
 
     #region Unit setup
 
-    public static void Static_Setup(Board board)
-    {
-        instance.Setup(board);
-    }
-    void Setup(Board board)
+    public void Setup(Board board)
     {
         //Create Player1 units
         _redTeamUnits = CreateUnits(Color.red, new Color32(210, 95, 64, 255), board);
@@ -50,7 +37,15 @@ public class UnitManager : MonoBehaviour
         PlaceUnits(1, 0, _redTeamUnits, board);
         PlaceUnits(6, 7, _blueTeamUnits, board);
 
-        SwitchSides(Color.red);
+        if (GameManager.singlePlayer)
+        {
+            //List<BaseUnit> allUnits;
+            //allUnits = _blueTeamUnits;
+            //allUnits.AddRange(_redTeamUnits);
+            GameManager.Static_SendAIUnits(_redTeamUnits, Color.red,_blueTeamUnits);
+        }
+
+        SwitchSides(Color.red); //blue always starts the game
     }
 
     List<BaseUnit> CreateUnits(Color teamColor, Color32 unitColor,Board board)
@@ -60,20 +55,21 @@ public class UnitManager : MonoBehaviour
         for(int i = 0; i< _unitOrder.Length; i++)
         {
             Vector3 rotation = teamColor == Color.red ? new Vector3(0, 0, 0) : new Vector3(0, 180, 0);
+
             // instantiate the new unit
             GameObject newUnitObject = Instantiate(unitPrefab, transform);
             newUnitObject.transform.eulerAngles = rotation;
 
             //identify the new unit
-            string key = _unitOrder[i];
-            Type unitType = unitLibrary[key];
+            char key = _unitOrder[i];
+            Type unitType = _unitLibrary[key];
 
             //store the new unit
             BaseUnit newUnit = (BaseUnit)newUnitObject.AddComponent(unitType);
             newUnits.Add(newUnit);
 
             //setup peice
-            newUnit.Setup(teamColor, unitColor);
+            newUnit.Setup(teamColor, unitColor, key);
         }
 
         return newUnits;
@@ -106,58 +102,35 @@ public class UnitManager : MonoBehaviour
         }
             
     }
-    public static void Static_SwitchSides(Color color)
-    {
-        instance.SwitchSides(color);
-    }
-    void SwitchSides(Color color)
-    {
-       
 
+    public void SwitchSides(Color color)
+    {
         bool isRedTurn = color == Color.red ? true : false;
 
         //set the interactivity
         SetInteractive(_redTeamUnits, !isRedTurn);
         SetInteractive(_blueTeamUnits, isRedTurn);
     }
-    void CheckGameState()
-    {
-        if (_gameOver)
-        {
-            ResetGame();
-        }
-    }
-    void ResetGame()
-    {
-        ResetUnits();//reset pieces to go back to where they cam from and keep board the same
 
-        _gameOver = false;//game is not over anymore
-        _redTeamScore = _blueTeamScore = 0;
-    }
-
-    void ResetUnits()
-    {
-        foreach (BaseUnit unit in _redTeamUnits) //reset player 1 units
-            unit.Reset();
-
-        foreach (BaseUnit unit in _blueTeamUnits)//reset player 1 units
-            unit.Reset();
-    }
-    public static void Static_UnitDeath(Color color)
-    {
-        instance.UnitDeath(color);
-    }
-    void UnitDeath(Color color)
-    {
-        if (color == Color.red)
-            _blueTeamScore += 1;
-        else
-            _redTeamScore += 1;
-
-        if (_redTeamScore == 12 || _blueTeamScore == 12)
-            _gameOver = true;
-
-        CheckGameState();
-    }
     #endregion
+
+    //List<BaseUnit> AvailableMoves()
+    //{
+    //    List<BaseUnit> availableMoves = new List<BaseUnit>();
+
+    //    foreach (BaseUnit unit in _redTeamUnits)
+    //    {
+    //        if (!unit.gameObject.activeSelf)
+    //        {
+    //            continue;
+    //        }
+    //        else
+    //        {
+    //            unit.CheckPath();
+    //            if (unit.highlightedTiles.Count == 0)
+    //                continue;
+    //        }
+    //        availableMoves.Add(unit);
+    //    }
+    //}
 }

@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 public enum TileState
@@ -11,9 +11,10 @@ public enum TileState
 
 public class Board : MonoBehaviour
 {
+    
     public GameObject tilePrefab;
 
-    public Tile[,] allTiles = new Tile[8, 8];
+    public Tile[,] allTiles = new Tile[8, 8]; //stores all tiles
     
     public void Create()
     {

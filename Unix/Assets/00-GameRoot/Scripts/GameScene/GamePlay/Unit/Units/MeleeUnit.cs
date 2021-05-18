@@ -5,10 +5,12 @@ using UnityEngine;
 public class MeleeUnit : BaseUnit
 {
     BaseUnit _target;
-    public override void Setup(Color TeamColor, Color32 unitColor)
+
+    public override void Setup(Color TeamColor, Color32 unitColor, char ChararcterCode)
     {
         maxHealth = 20;
-        base.Setup(TeamColor, unitColor);
+        coolDown = 3f;
+        base.Setup(TeamColor, unitColor, ChararcterCode);
 
         movement = new Vector3Int(1, 1, 1);
 
@@ -27,17 +29,24 @@ public class MeleeUnit : BaseUnit
                 if (target != null)
                 {
                     _target = target;
+                    transform.LookAt(target.transform);
                     TransitionToState(attackState);
                 }
             }
         }
     }
 
-    public override void Attack()
+    public override IEnumerator CoolDown()
     {
         if(!_target.gameObject.activeSelf) //if gameObject has been set to deactive
             TransitionToState(idleState); //go back to idle
         else
-            _target.TakeDamage(2); //attack
+        {
+
+            StartCoroutine(_target.TakeDamage(2));             //attack
+        }
+            
+
+        yield return base.CoolDown();
     }
 }

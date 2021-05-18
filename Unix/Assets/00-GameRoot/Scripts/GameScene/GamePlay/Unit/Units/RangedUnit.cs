@@ -5,11 +5,12 @@ using UnityEngine;
 public class RangedUnit : BaseUnit
 {
     BaseUnit _target;
-    public override void Setup(Color TeamColor, Color32 unitColor)
+    public override void Setup(Color TeamColor, Color32 unitColor, char ChararcterCode)
     {
         maxHealth = 18;
+        coolDown = 3f;
 
-        base.Setup(TeamColor, unitColor);
+        base.Setup(TeamColor, unitColor, ChararcterCode);
 
 
         movement = new Vector3Int(0, 7, 0);
@@ -28,17 +29,21 @@ public class RangedUnit : BaseUnit
                 if (target != null)
                 {
                     _target = target;
+                    transform.LookAt(target.transform);
                     TransitionToState(attackState);
+                    break;
                 }
             }
         }
     }
 
-    public override void Attack()
+    public override IEnumerator CoolDown()
     {
         if (!_target.gameObject.activeSelf) //if gameObject has been set to deactive
             TransitionToState(idleState); //go back to idle
         else
-            _target.TakeDamage(3); //attack
+            StartCoroutine(_target.TakeDamage(3));  //attack
+
+        yield return base.CoolDown();
     }
 }
