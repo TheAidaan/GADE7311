@@ -17,9 +17,9 @@ public abstract class UIManager : MonoBehaviour
     }
     public virtual void SetUI() {}
 
-    public void RestartCurrentScene()          // can be used to restart game or play game from title menu
+    public void PlayGame()          // can be used to restart game or play game from title menu
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(1);
     }
     public void ReturnToIntroScene()          // can be used to restart game or play game from title menu
     {

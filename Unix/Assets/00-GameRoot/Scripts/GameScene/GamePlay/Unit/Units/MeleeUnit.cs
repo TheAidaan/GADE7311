@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class MeleeUnit : BaseUnit
 {
-    BaseUnit _target;
-
-    public override void Setup(Color TeamColor, Color32 unitColor, char ChararcterCode)
+    public override void Setup(Color TeamColor, Color32 unitColor, char CharacterCode)
     {
         maxHealth = 20;
         coolDown = 3f;
-        base.Setup(TeamColor, unitColor, ChararcterCode);
+        base.Setup(TeamColor, unitColor,CharacterCode);
 
         movement = new Vector3Int(1, 1, 1);
 
@@ -20,33 +18,34 @@ public class MeleeUnit : BaseUnit
 
     public override void CheckForEnemies()
     {
+
         RaycastHit[] hit = Physics.SphereCastAll(transform.position, 15f, Vector3.down);
         foreach (RaycastHit Hit in hit)
         {
             if (Hit.transform.gameObject.layer != transform.gameObject.layer)
             {
-                BaseUnit target = Hit.transform.gameObject.GetComponent<BaseUnit>();
-                if (target != null)
+                
+                BaseUnit Target = Hit.transform.gameObject.GetComponent<BaseUnit>();
+                if (Target != null)
                 {
-                    _target = target;
-                    transform.LookAt(target.transform);
+                    target = Target;
+                    targetPos = Target.transform.position;
                     TransitionToState(attackState);
                 }
             }
         }
     }
 
-    public override IEnumerator CoolDown()
+    public override void Attack()
     {
-        if(!_target.gameObject.activeSelf) //if gameObject has been set to deactive
-            TransitionToState(idleState); //go back to idle
-        else
+        bool canAttack = CheckAttackValidity();
+        
+        if (canAttack)
         {
-
-            StartCoroutine(_target.TakeDamage(2));             //attack
+            StartCoroutine(target.TakeDamage(2));             //attack 
+        }else
+        {
+            TransitionToState(idleState); //go back to idle
         }
-            
-
-        yield return base.CoolDown();
     }
 }

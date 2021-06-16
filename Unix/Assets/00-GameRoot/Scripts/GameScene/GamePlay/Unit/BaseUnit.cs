@@ -6,9 +6,8 @@ using UnityEngine;
 public abstract class BaseUnit : MonoBehaviour
 {
     public int maxHealth;
-    public float coolDown;
     int _health;
-    public Tile currentTile = null;
+    public char characterCode;
 
     #region Unit setup
     public Color teamColor = Color.clear;
@@ -17,12 +16,10 @@ public abstract class BaseUnit : MonoBehaviour
 
     public Vector3 rotation;
 
-    char chararcterCode;
 
-
-    public virtual void Setup(Color TeamColor, Color32 unitColor, char ChararcterCode)
+    public virtual void Setup(Color TeamColor, Color32 unitColor, char CharacterCode)
     {
-        chararcterCode = ChararcterCode;
+        characterCode = CharacterCode;
         teamColor = TeamColor;
 
         int layer = teamColor == Color.red ? 3:6;
@@ -32,28 +29,19 @@ public abstract class BaseUnit : MonoBehaviour
         _health = maxHealth;
 
         rotation = transform.rotation.eulerAngles;
+
     }
 
-    public void Place(Tile newTile)
-    {
-        //tile
-        currentTile = newTile;
-        _originalTile = newTile;
-
-        currentTile.currentUnit = this;
-
-        //object
-        transform.position = newTile.transform.position;
-        gameObject.SetActive(true);
-    }
+  
     #endregion
 
     #region Unit Movement
     //Movement Variables
     public Vector3Int movement = Vector3Int.one;
-    public List<Tile> highlightedTiles = new List<Tile>(); // all possibile moves list
+    public List<Tile> highlightedTiles = new List<Tile>();
+    public Tile currentTile = null;
 
-
+    Tile _targetTile = null;
     public bool selected;
     void CreateTilePath(int xDirection, int yDirection, int movement)
     {
@@ -78,7 +66,7 @@ public abstract class BaseUnit : MonoBehaviour
         }
     }
 
-    public virtual void CheckPath()
+    protected virtual void CheckPath()
     {
         //horizantal 
         CreateTilePath(1, 0, movement.x);
@@ -94,24 +82,7 @@ public abstract class BaseUnit : MonoBehaviour
 
         //horizantal 
         CreateTilePath(-1, -1, movement.y);
-        CreateTilePath(1, -1, movement.y);   
-    }
-    public virtual void Move(Tile targetTile)
-    {
-        //clear the current tile
-        currentTile.currentUnit = null;
-
-        //change current tile
-        currentTile = targetTile;
-        currentTile.currentUnit = this;
-
-        //Move on board
-        transform.position = currentTile.transform.position;
-        targetTile = null;
-
-        GameManager.Static_SwitchSides(teamColor);
-
-        //HideHighlightedTiles();
+        CreateTilePath(1, -1, movement.y);
     }
 
     public void ShowHighlightedTiles()
@@ -128,14 +99,37 @@ public abstract class BaseUnit : MonoBehaviour
 
         highlightedTiles.Clear();
     }
+    public void Place(Tile newTile)
+    {
+        //tile
+        currentTile = newTile;
+        _originalTile = newTile;
 
+        currentTile.currentUnit = this;
+
+        //object
+        transform.position = newTile.transform.position;
+        gameObject.SetActive(true);
+    }
     public void Reset() //Resets peices, keeps board the same
     {
         gameObject.SetActive(true);
         Place(_originalTile);
     }
 
-    
+    protected virtual void Move()
+    {
+        //clear the current tile
+        currentTile.currentUnit = null;
+
+        //change current tile
+        currentTile = _targetTile;
+        currentTile.currentUnit = this;
+
+        //Move on board
+        transform.position = currentTile.transform.position;
+        _targetTile = null;
+    }
 
     #region Mouse events
     public void OnMouseOver()
@@ -144,24 +138,26 @@ public abstract class BaseUnit : MonoBehaviour
         {
             // Test for cells
             CheckPath();
-            ShowHighlightedTiles(); //show highlighted tile
+            ShowHighlightedTiles(); //show highlighted tiles
         }   
     }
 
     private void OnMouseExit()
     {
-        if(_currentState != hoverState) //don't clear the highlighted tiles while the player is draging a unit
+       
+        if (_currentState != hoverState) //don't clear the highlighted tiles while the player is draging a unit
+        {
             HideHighlightedTiles();
+        }
     }
 
     public void Clicked()
-    {
-        TransitionToState(hoverState);  
+    {       
+        TransitionToState(hoverState);
     }
 
     public void Drag()
     {
-        Tile targetTile = null;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit)) // did the ray hit anything?
         {
@@ -171,19 +167,19 @@ public abstract class BaseUnit : MonoBehaviour
             {
                 if (hit.transform.gameObject.GetComponent<Tile>() == tile) // is the cursor over one of he highlighted tiles?
                 {
-                    targetTile = tile;//make that tile the target tile 
+                    _targetTile = tile;//make that tile the target tile 
                     break;// only one can be the target 
                 }
 
-                targetTile = null;
+                _targetTile = null;
             }
 
-            if (Input.GetMouseButtonDown(0) && targetTile != null) // right button clicked
+            if (Input.GetMouseButtonDown(0) && _targetTile != null) // right button clicked
             {
 
-                Move(targetTile); // go to target location;
+                Move(); // go to target location;
                 TransitionToState(idleState);
-
+                UnitManager.Static_SwitchSides(teamColor);
             }
 
             if (Input.GetMouseButtonDown(1)) // right button clicked
@@ -197,7 +193,7 @@ public abstract class BaseUnit : MonoBehaviour
 
     #endregion
 
-    #region States and Interactions
+    #region States machine
 
     UnitBaseState _currentState;
     public UnitBaseState currentState { get { return _currentState; } }
@@ -221,6 +217,26 @@ public abstract class BaseUnit : MonoBehaviour
         _currentState.EnterState(this);
     }
 
+
+    #endregion
+
+    #region Attack
+    public BaseUnit target;
+    public Vector3 targetPos;
+    public float coolDown;
+    public virtual void CheckForEnemies() { }
+    public virtual void Attack() { }
+    public virtual bool CheckAttackValidity() {
+        if (!target.gameObject.activeSelf) //if gameObject has been set to deactive
+            return false;
+
+        if (target.transform.position == targetPos)
+            return true;
+
+        return false;
+    }
+
+    #endregion
     public IEnumerator TakeDamage(int damage)
     {
         _health -= damage;
@@ -228,21 +244,12 @@ public abstract class BaseUnit : MonoBehaviour
         if (_health <= 0)
         {
             gameObject.SetActive(false);
-            GameManager.Static_UnitDeath(teamColor, chararcterCode);
+            UnitManager.Static_UnitDeath(teamColor);
         }
         yield return new WaitForSeconds(.5f);
         gameObject.GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
 
     }
-    #endregion
-
-    #region abstract Methods
-    public virtual void Attack() { StartCoroutine(CoolDown()); }
-    public virtual IEnumerator CoolDown() 
-    { 
-        yield return new WaitForSeconds(coolDown); 
-        StartCoroutine(CoolDown()); 
-    }
-    public virtual void CheckForEnemies() { }
-    #endregion
+   
+    
 }

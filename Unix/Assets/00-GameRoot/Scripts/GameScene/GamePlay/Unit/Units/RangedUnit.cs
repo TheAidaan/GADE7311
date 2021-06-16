@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class RangedUnit : BaseUnit
 {
-    BaseUnit _target;
-    public override void Setup(Color TeamColor, Color32 unitColor, char ChararcterCode)
+    public override void Setup(Color TeamColor, Color32 unitColor, char CharacterCode)
     {
         maxHealth = 18;
         coolDown = 3f;
 
-        base.Setup(TeamColor, unitColor, ChararcterCode);
+        base.Setup(TeamColor, unitColor,CharacterCode);
 
 
         movement = new Vector3Int(0, 7, 0);
@@ -25,11 +24,11 @@ public class RangedUnit : BaseUnit
         {
             if (Hit.transform.gameObject.layer != transform.gameObject.layer)
             {
-                BaseUnit target = Hit.transform.gameObject.GetComponent<BaseUnit>();
-                if (target != null)
+                BaseUnit Target = Hit.transform.gameObject.GetComponent<BaseUnit>();
+                if (Target != null)
                 {
-                    _target = target;
-                    transform.LookAt(target.transform);
+                    target = Target;
+                    targetPos = Target.transform.position;
                     TransitionToState(attackState);
                     break;
                 }
@@ -37,13 +36,20 @@ public class RangedUnit : BaseUnit
         }
     }
 
-    public override IEnumerator CoolDown()
-    {
-        if (!_target.gameObject.activeSelf) //if gameObject has been set to deactive
-            TransitionToState(idleState); //go back to idle
-        else
-            StartCoroutine(_target.TakeDamage(3));  //attack
 
-        yield return base.CoolDown();
+
+    public override void Attack()
+    {
+        bool canAttack = CheckAttackValidity();
+
+        if (canAttack)
+        {
+            StartCoroutine(target.TakeDamage(2));             //attack 
+        }
+        else
+        {
+            TransitionToState(idleState); //go back to idle
+        }
+
     }
 }

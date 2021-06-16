@@ -11,7 +11,6 @@ public enum TileState
 
 public class Board : MonoBehaviour
 {
-    
     public GameObject tilePrefab;
 
     public Tile[,] allTiles = new Tile[8, 8]; //stores all tiles

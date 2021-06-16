@@ -4,12 +4,11 @@ using UnityEngine;
 
 public class WizardUnit : BaseUnit
 { 
-    List<BaseUnit> _targets = new List<BaseUnit>();
-    public override void Setup(Color TeamColor, Color32 unitColor, char ChararcterCode)
+    public override void Setup(Color TeamColor, Color32 unitColor, char CharacterCode)
     {
         maxHealth = 15;
         coolDown = 4f;
-        base.Setup(TeamColor, unitColor, ChararcterCode);
+        base.Setup(TeamColor, unitColor,CharacterCode);
 
         GetComponent<MeshFilter>().mesh = Resources.Load<Mesh>("Wizard");
         gameObject.AddComponent<BoxCollider>();
@@ -38,7 +37,7 @@ public class WizardUnit : BaseUnit
 
     }
 
-    public override void CheckPath()
+    protected override void CheckPath()
     {
         CreateTilePath(1); // top half
         CreateTilePath(-1);//bottom half
@@ -55,33 +54,42 @@ public class WizardUnit : BaseUnit
                 BaseUnit target = Hit.transform.gameObject.GetComponent<BaseUnit>();
                 if (target != null)
                 {
-                    _targets.Add(target);
                     TransitionToState(attackState);
                 }
             }         
         } 
     }
 
-    public override IEnumerator CoolDown()
-    {
-        List<BaseUnit> newTargets = new List<BaseUnit>(); 
 
-        foreach (BaseUnit target in _targets)
+    public override void Attack()
+    {
+        List<BaseUnit> targets = new List<BaseUnit>();
+
+        RaycastHit[] hit = Physics.SphereCastAll(transform.position, 15f, Vector3.down);
+        foreach (RaycastHit Hit in hit)
         {
-            if (target.gameObject.activeSelf) //if gameObject is still active
+            if (Hit.transform.gameObject.layer != transform.gameObject.layer)
             {
-                newTargets.Add(target);
-                StartCoroutine(target.TakeDamage(4)); //attack
-            }     
+                BaseUnit target = Hit.transform.gameObject.GetComponent<BaseUnit>();
+
+                if (target != null)
+                {
+                    targets.Add(target);
+                }
+            }
         }
 
-        _targets = newTargets; // i wanted to remove allthe inactive fromt the main _targets list in the foreach loop but, i got an error
-        
-        if (_targets.Count == 0) // if all targets have been removed
+        if (targets.Count == 0)
         {
             TransitionToState(idleState);
         }
 
-        yield return base.CoolDown();
+        foreach (BaseUnit target in targets)
+        {
+            StartCoroutine(target.TakeDamage(4)); //attack            
+        }
+
+        targets.Clear();
+
     }
 }

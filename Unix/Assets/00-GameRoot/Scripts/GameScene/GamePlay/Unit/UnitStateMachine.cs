@@ -13,9 +13,23 @@ public abstract class UnitBaseState : BaseSate<BaseUnit>
 
 public class UnitAttackState : UnitBaseState
 {
+    float timePassed=0;
     public override void EnterState(BaseUnit script)
     {
-        script.Attack(); // attack the enemy unit 
+        if (script.characterCode == 'R'|| script.characterCode == 'M')
+            script.transform.LookAt(script.target.transform);
+        timePassed = 0;
+    }
+
+    public override void Update(BaseUnit script)
+    {
+        timePassed += Time.deltaTime;
+        if (timePassed > script.coolDown)
+        {
+            script.Attack();
+            timePassed = 0;
+        }
+        
     }
 }
 public class UnitHoverState : UnitBaseState

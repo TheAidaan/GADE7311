@@ -9,9 +9,6 @@ EditorBuildSettings:
     path: Assets/00-GameRoot/Scenes/Intro.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/00-GameRoot/Scenes/Multiplayer - Task 1.unity
+    path: Assets/00-GameRoot/Scenes/Game.unity
     guid: 5daab69a70abec04cacd0b123e87d05b
-  - enabled: 1
-    path: Assets/00-GameRoot/Scenes/Single Player - Task2.unity
-    guid: 300872f65779266408f665fbfe460644
   m_configObjects: {}
