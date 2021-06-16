@@ -27,10 +27,14 @@ public class RangedUnit : BaseUnit
                 BaseUnit Target = Hit.transform.gameObject.GetComponent<BaseUnit>();
                 if (Target != null)
                 {
-                    target = Target;
-                    targetPos = Target.transform.position;
-                    TransitionToState(attackState);
-                    break;
+                    if (!GameManager.aiEvaluationInProgress)
+                    {
+                        target = Target;
+                        targetPos = Target.transform.position;
+                        TransitionToState(attackState);
+                        break;
+                    }
+                    
                 }
             }
         }

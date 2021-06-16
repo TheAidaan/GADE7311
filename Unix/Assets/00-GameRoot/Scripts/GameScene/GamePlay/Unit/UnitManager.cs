@@ -6,9 +6,12 @@ public class UnitManager : MonoBehaviour
 {
     public static UnitManager instance;
 
-    bool _gameOver;
+    bool _gameOver, _activeMinMax;
 
     public GameObject unitPrefab;
+
+    Color _aiColor;
+    Minimax _minimax = null;
 
     List<BaseUnit> _redTeamUnits = null;
     List<BaseUnit> _blueTeamUnits = null;
@@ -39,6 +42,7 @@ public class UnitManager : MonoBehaviour
     public static void Static_Setup(Board board)
     {
         instance.Setup(board);
+        
     }
     void Setup(Board board)
     {
@@ -52,6 +56,8 @@ public class UnitManager : MonoBehaviour
         PlaceUnits(6, 7, _blueTeamUnits, board);
 
         SwitchSides(Color.red);
+
+        _activeMinMax = false;
     }
 
     List<BaseUnit> CreateUnits(Color teamColor, Color32 unitColor,Board board)
@@ -109,15 +115,26 @@ public class UnitManager : MonoBehaviour
     }
     public static void Static_SwitchSides(Color color)
     {
-        instance.SwitchSides(color);
+        if (!GameManager.aiEvaluationInProgress)
+        {
+            instance.SwitchSides(color);
+        }
+        
     }
     void SwitchSides(Color color)
     {
+
         bool isRedTurn = color == Color.red ? true : false;
 
         //set the interactivity
         SetInteractive(_redTeamUnits, !isRedTurn);
         SetInteractive(_blueTeamUnits, isRedTurn);
+
+        if (_aiColor != color) // the player just went and it is the players turn
+        {
+            if(_minimax != null) { _minimax.Play(); }
+
+        }
     }
     void CheckGameState()
     {
@@ -157,6 +174,36 @@ public class UnitManager : MonoBehaviour
             _gameOver = true;
 
         CheckGameState();
+    }
+    #endregion
+
+    #region AI
+    public void SetMinMax(Minimax minimax, Color aiColor)
+    {
+        _activeMinMax = true;
+        _minimax = minimax;
+        _aiColor = aiColor;
+    }
+
+    public List<BaseUnit> GetRedTeamUnits()
+    {
+        return _redTeamUnits;
+    }
+    public List<BaseUnit> GetBlueTeamUnits()
+    {
+        return _blueTeamUnits;
+    }
+    public static List<BaseUnit> Static_GetRedTeamUnits()
+    {
+        return instance.GetRedTeamUnits();
+    }
+    public static List<BaseUnit> Static_GetBlueTeamUnits()
+    {
+        return instance.GetBlueTeamUnits();
+    }
+    public static void Static_SetMinMax(Minimax minimax,Color aiColor) //is there an AI in this scene?
+    {
+        instance.SetMinMax(minimax,aiColor);
     }
     #endregion
 }

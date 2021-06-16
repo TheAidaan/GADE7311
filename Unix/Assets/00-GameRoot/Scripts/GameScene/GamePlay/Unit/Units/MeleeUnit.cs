@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MeleeUnit : BaseUnit
@@ -28,9 +26,14 @@ public class MeleeUnit : BaseUnit
                 BaseUnit Target = Hit.transform.gameObject.GetComponent<BaseUnit>();
                 if (Target != null)
                 {
-                    target = Target;
-                    targetPos = Target.transform.position;
-                    TransitionToState(attackState);
+                    if (!GameManager.aiEvaluationInProgress)
+                    {
+                        target = Target;
+                        targetPos = Target.transform.position;
+                        TransitionToState(attackState);
+                        break;
+                    }
+                    
                 }
             }
         }

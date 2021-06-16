@@ -3,8 +3,16 @@ using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
-    private void Start()
+    public static GameManager instance;
+    static bool _aiEvaluationInProgress;
+    public static bool aiEvaluationInProgress { get { return _aiEvaluationInProgress; } }
+
+    private void Awake()
     {
+        instance = this;
+
+        SetAIEvaluationStatus(false);
+
         Board board = GetComponent<Board>();
         board.Create();
         UnitManager.Static_Setup(board);
@@ -33,4 +41,14 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+
+    public void SetAIEvaluationStatus(bool status)
+    {
+        _aiEvaluationInProgress = status;
+    }
+    public static void STATIC_SetAIEvaluationStatus(bool status)
+    {
+        instance.SetAIEvaluationStatus(status);
+    }
+
 }

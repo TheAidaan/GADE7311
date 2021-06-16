@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -41,9 +40,8 @@ public abstract class BaseUnit : MonoBehaviour
     public List<Tile> highlightedTiles = new List<Tile>();
     public Tile currentTile = null;
 
-    Tile _targetTile = null;
     public bool selected;
-    void CreateTilePath(int xDirection, int yDirection, int movement)
+    public void CreateTilePath(int xDirection, int yDirection, int movement)
     {
         //TargetPosition
         int currentX = currentTile.boardPosition.x;
@@ -66,7 +64,7 @@ public abstract class BaseUnit : MonoBehaviour
         }
     }
 
-    protected virtual void CheckPath()
+    public virtual void CheckPath()
     {
         //horizantal 
         CreateTilePath(1, 0, movement.x);
@@ -117,18 +115,22 @@ public abstract class BaseUnit : MonoBehaviour
         Place(_originalTile);
     }
 
-    protected virtual void Move()
+    public virtual void Move(Tile targetTile)
     {
+        TransitionToState(idleState);
+
         //clear the current tile
         currentTile.currentUnit = null;
 
         //change current tile
-        currentTile = _targetTile;
+        currentTile = targetTile;
         currentTile.currentUnit = this;
 
         //Move on board
         transform.position = currentTile.transform.position;
-        _targetTile = null;
+        targetTile = null;
+
+        UnitManager.Static_SwitchSides(teamColor);
     }
 
     #region Mouse events
@@ -167,20 +169,16 @@ public abstract class BaseUnit : MonoBehaviour
             {
                 if (hit.transform.gameObject.GetComponent<Tile>() == tile) // is the cursor over one of he highlighted tiles?
                 {
-                    _targetTile = tile;//make that tile the target tile 
-                    break;// only one can be the target 
+                    if (Input.GetMouseButtonDown(0))  // right button clicked
+                    {
+                        Move(tile);//move to the tile the player has chosen 
+                        break;// only one can be the target 
+                    }
+                    
                 }
 
-                _targetTile = null;
             }
 
-            if (Input.GetMouseButtonDown(0) && _targetTile != null) // right button clicked
-            {
-
-                Move(); // go to target location;
-                TransitionToState(idleState);
-                UnitManager.Static_SwitchSides(teamColor);
-            }
 
             if (Input.GetMouseButtonDown(1)) // right button clicked
             {

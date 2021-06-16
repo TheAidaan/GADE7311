@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -37,7 +36,7 @@ public class WizardUnit : BaseUnit
 
     }
 
-    protected override void CheckPath()
+    public override void CheckPath()
     {
         CreateTilePath(1); // top half
         CreateTilePath(-1);//bottom half
@@ -54,7 +53,11 @@ public class WizardUnit : BaseUnit
                 BaseUnit target = Hit.transform.gameObject.GetComponent<BaseUnit>();
                 if (target != null)
                 {
-                    TransitionToState(attackState);
+                    if (!GameManager.aiEvaluationInProgress)
+                    {
+                        TransitionToState(attackState);
+                        break;
+                    }
                 }
             }         
         } 
