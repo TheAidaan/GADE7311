@@ -43,8 +43,11 @@ public class WizardUnit : BaseUnit
     }
     #endregion
 
-    public override void CheckForEnemies()
+    #region Attack
+    public override List<BaseUnit> CheckForEnemies(bool checkForReturn) // this unit also checks for eneimies to attack while attacking
     {
+        List<BaseUnit> targets = new List<BaseUnit>();
+
         RaycastHit[] hit = Physics.SphereCastAll(transform.position, 15f, Vector3.down);
         foreach (RaycastHit Hit in hit)
         {
@@ -53,34 +56,24 @@ public class WizardUnit : BaseUnit
                 BaseUnit target = Hit.transform.gameObject.GetComponent<BaseUnit>();
                 if (target != null)
                 {
-                    if (!GameManager.aiEvaluationInProgress)
+                    if (!GameManager.aiEvaluationInProgress && !checkForReturn) // if there is no evaluation in progress and this function is NOT being called for a return value
                     {
-                        TransitionToState(attackState);
-                        break;
+                        
+                            TransitionToState(attackState); 
+                            break;
                     }
+
+                    targets.Add(target);
                 }
             }         
-        } 
+        }
+        return targets;
     }
 
 
     public override void Attack()
     {
-        List<BaseUnit> targets = new List<BaseUnit>();
-
-        RaycastHit[] hit = Physics.SphereCastAll(transform.position, 15f, Vector3.down);
-        foreach (RaycastHit Hit in hit)
-        {
-            if (Hit.transform.gameObject.layer != transform.gameObject.layer)
-            {
-                BaseUnit target = Hit.transform.gameObject.GetComponent<BaseUnit>();
-
-                if (target != null)
-                {
-                    targets.Add(target);
-                }
-            }
-        }
+        List<BaseUnit> targets = CheckForEnemies(true);
 
         if (targets.Count == 0)
         {
@@ -94,5 +87,11 @@ public class WizardUnit : BaseUnit
 
         targets.Clear();
 
+    }
+    #endregion
+
+    public override void IdleUpdate()
+    {
+        CheckForEnemies(false);
     }
 }

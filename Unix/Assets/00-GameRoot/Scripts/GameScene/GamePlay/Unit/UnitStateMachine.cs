@@ -55,6 +55,6 @@ public class UnitIdleState : UnitBaseState
     }
     public override void Update(BaseUnit script)
     {
-        script.CheckForEnemies();
+        script.IdleUpdate();
     }
 }

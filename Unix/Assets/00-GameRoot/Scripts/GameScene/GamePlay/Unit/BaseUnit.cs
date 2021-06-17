@@ -7,6 +7,7 @@ public abstract class BaseUnit : MonoBehaviour
     public int maxHealth;
     int _health;
     public char characterCode;
+    public int damage;
 
     #region Unit setup
     public Color teamColor = Color.clear;
@@ -39,6 +40,7 @@ public abstract class BaseUnit : MonoBehaviour
     public Vector3Int movement = Vector3Int.one;
     public List<Tile> highlightedTiles = new List<Tile>();
     public Tile currentTile = null;
+    Tile previousTile = null;
 
     public bool selected;
     public void CreateTilePath(int xDirection, int yDirection, int movement)
@@ -115,9 +117,16 @@ public abstract class BaseUnit : MonoBehaviour
         Place(_originalTile);
     }
 
+    public void UndoMove()
+    {
+        Move(previousTile);
+    }
+
     public virtual void Move(Tile targetTile)
     {
         TransitionToState(idleState);
+        //Set previous tile
+        previousTile = currentTile;
 
         //clear the current tile
         currentTile.currentUnit = null;
@@ -222,8 +231,24 @@ public abstract class BaseUnit : MonoBehaviour
     public BaseUnit target;
     public Vector3 targetPos;
     public float coolDown;
-    public virtual void CheckForEnemies() { }
-    public virtual void Attack() { }
+
+    public virtual void IdleUpdate() { CheckForEnemy(); }
+    public virtual BaseUnit CheckForEnemy() { return null; }
+    public virtual List<BaseUnit> CheckForEnemies(bool checkForReturn) { return null; }
+
+    public virtual void Attack() 
+    {
+        bool canAttack = CheckAttackValidity();
+
+        if (canAttack)
+        {
+            StartCoroutine(target.TakeDamage(damage));             //attack 
+        }
+        else
+        {
+            TransitionToState(idleState); //go back to idle
+        }
+    }
     public virtual bool CheckAttackValidity() {
         if (!target.gameObject.activeSelf) //if gameObject has been set to deactive
             return false;
@@ -235,6 +260,7 @@ public abstract class BaseUnit : MonoBehaviour
     }
 
     #endregion
+
     public IEnumerator TakeDamage(int damage)
     {
         _health -= damage;
@@ -244,6 +270,7 @@ public abstract class BaseUnit : MonoBehaviour
             gameObject.SetActive(false);
             UnitManager.Static_UnitDeath(teamColor);
         }
+
         yield return new WaitForSeconds(.5f);
         gameObject.GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
 

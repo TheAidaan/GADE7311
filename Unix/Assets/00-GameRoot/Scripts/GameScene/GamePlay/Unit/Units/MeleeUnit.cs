@@ -6,6 +6,8 @@ public class MeleeUnit : BaseUnit
     {
         maxHealth = 20;
         coolDown = 3f;
+        damage = 2;
+
         base.Setup(TeamColor, unitColor,CharacterCode);
 
         movement = new Vector3Int(1, 1, 1);
@@ -14,9 +16,8 @@ public class MeleeUnit : BaseUnit
         gameObject.AddComponent<BoxCollider>();
     }
 
-    public override void CheckForEnemies()
+    public override BaseUnit CheckForEnemy()
     {
-
         RaycastHit[] hit = Physics.SphereCastAll(transform.position, 15f, Vector3.down);
         foreach (RaycastHit Hit in hit)
         {
@@ -26,29 +27,20 @@ public class MeleeUnit : BaseUnit
                 BaseUnit Target = Hit.transform.gameObject.GetComponent<BaseUnit>();
                 if (Target != null)
                 {
+                    target = Target;
+
                     if (!GameManager.aiEvaluationInProgress)
                     {
-                        target = Target;
                         targetPos = Target.transform.position;
                         TransitionToState(attackState);
                         break;
                     }
-                    
+
+                    return target;
                 }
             }
         }
-    }
 
-    public override void Attack()
-    {
-        bool canAttack = CheckAttackValidity();
-        
-        if (canAttack)
-        {
-            StartCoroutine(target.TakeDamage(2));             //attack 
-        }else
-        {
-            TransitionToState(idleState); //go back to idle
-        }
+        return null;
     }
 }

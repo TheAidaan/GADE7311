@@ -8,6 +8,7 @@ public class RangedUnit : BaseUnit
     {
         maxHealth = 18;
         coolDown = 3f;
+        damage = 2;
 
         base.Setup(TeamColor, unitColor,CharacterCode);
 
@@ -17,7 +18,8 @@ public class RangedUnit : BaseUnit
         gameObject.AddComponent<BoxCollider>();
     }
 
-    public override void CheckForEnemies()
+    
+    public override BaseUnit CheckForEnemy()
     {
         RaycastHit[] hit = Physics.SphereCastAll(transform.position, 25f , Vector3.down);
         foreach (RaycastHit Hit in hit)
@@ -27,33 +29,20 @@ public class RangedUnit : BaseUnit
                 BaseUnit Target = Hit.transform.gameObject.GetComponent<BaseUnit>();
                 if (Target != null)
                 {
+                    target = Target;
+
                     if (!GameManager.aiEvaluationInProgress)
                     {
-                        target = Target;
                         targetPos = Target.transform.position;
                         TransitionToState(attackState);
                         break;
                     }
-                    
+
+                    return target;                    
                 }
             }
         }
-    }
 
-
-
-    public override void Attack()
-    {
-        bool canAttack = CheckAttackValidity();
-
-        if (canAttack)
-        {
-            StartCoroutine(target.TakeDamage(2));             //attack 
-        }
-        else
-        {
-            TransitionToState(idleState); //go back to idle
-        }
-
+        return null;
     }
 }
