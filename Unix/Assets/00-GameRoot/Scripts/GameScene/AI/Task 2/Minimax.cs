@@ -1,16 +1,14 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 struct Move
 {
-    public double evaluation;
     public BaseUnit unit;
     public Tile target;
 
-    public Move(double Evaluation, BaseUnit Unit, Tile Target)
+    public Move(BaseUnit Unit, Tile Target)
     {
-        evaluation = Evaluation;
         unit = Unit;
         target = Target;
     }
@@ -21,6 +19,8 @@ public class Minimax : MonoBehaviour
     List<BaseUnit> _aiUnits;
 
     Color _aiTeamColor;
+
+    Move _bestMove;
 
     Dictionary<char, double> _evaluationScoreLibrary = new Dictionary<char, double>()
     {
@@ -38,7 +38,7 @@ public class Minimax : MonoBehaviour
     }
     void AssignUnits()
     {
-        int rand = Random.Range(0, 1);
+        int rand = UnityEngine.Random.Range(0, 1);
 
         //_playerUnits = rand == 0 ? UnitManager.Static_GetBlueTeamUnits() : _playerUnits = UnitManager.Static_GetRedTeamUnits();
         //_aiUnits = rand == 0 ? UnitManager.Static_GetRedTeamUnits() : _playerUnits = UnitManager.Static_GetBlueTeamUnits();
@@ -52,118 +52,24 @@ public class Minimax : MonoBehaviour
         UnitManager.Static_SetMinMax(this, _aiTeamColor);
     }
 
-    double Evaluate(BaseUnit unit)
-    {
-        BaseUnit singletarget = null;
-        List<BaseUnit> targets = new List<BaseUnit>();
-    
-        double evaluation  = double.PositiveInfinity;
-        bool simpleEval = unit.characterCode == 'M' || unit.characterCode == 'R' ? true : false;
-
-       
-        if (simpleEval)
-        {
-            singletarget = unit.CheckForEnemy();
-            if (singletarget != null)
-                evaluation += _evaluationScoreLibrary[singletarget.characterCode];
-             
-            
-        }else
-        {
-            targets = unit.CheckForEnemies(true);
-
-            foreach(BaseUnit target in targets)
-                evaluation += _evaluationScoreLibrary[target.characterCode];
-            
-        }
-
-        int perspective = unit.teamColor == _aiTeamColor ? 1 : -1; //the AI wants a high evaluation for itself and a low evaluation fot the player;
-        evaluation *= perspective;
-
-        return evaluation;
-
-    }
     public void Play()
     {
         GameManager.STATIC_SetAIEvaluationStatus(true);
 
+        AI(3,double.NegativeInfinity,double.PositiveInfinity, true, null);
 
-        Move move = AISix(3, _aiUnits,null) ;
-
-        Debug.Log(move.evaluation);
-
-         move.target.gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
-         move.unit.gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
-
-
-
-        //Debug.Log(AIFour(2, _aiUnits));
         GameManager.STATIC_SetAIEvaluationStatus(false);
 
-       //move.unit.Move(move.target);
+        _bestMove.unit.Move(_bestMove.target);
 
     }
 
-
-    int AIFour(int depth, List<BaseUnit> units)
-    {
-        List<Tile> moves = new List<Tile>();
-
-        if (depth == 0)
-            return 0;
-
-        int counter = 0;
-
-
-        foreach (BaseUnit unit in units)
-        {
-            List<Tile> ValidMmoves = CheckValidMoves(unit);
-            
-
-            if (ValidMmoves != null)
-            {
-                
-                foreach (Tile tile in ValidMmoves)
-                {
-                    moves.Add(tile);
-                }
-
-                if (moves.Count != 0)
-                {
-                    Tile CurrentTile = unit.currentTile;
-
-                    foreach (Tile TargetTile in moves)
-                    {
-
-                        unit.Move(TargetTile);
-
-                        counter++;
-
-                        Evaluate(unit);
-
-                        if (units == _aiUnits)
-                            counter += AIFour(depth - 1, _playerUnits);
-                        else
-                            counter += AIFour(depth - 1, _aiUnits);
-
-                        unit.Move(CurrentTile);
-                    }
-                }
-            }
-
-            moves.Clear();
-           
-        }
-
-        return counter;
-    }
-
-    Move EvaluateToo(BaseUnit unit)
+    double Evaluate(BaseUnit unit)
     {
         BaseUnit singletarget = null;
         List<BaseUnit> targets = new List<BaseUnit>();
 
-        double evaluation = double.PositiveInfinity;
+        double evaluation = 0;
         bool simpleEval = unit.characterCode == 'M' || unit.characterCode == 'R' ? true : false;
 
 
@@ -187,65 +93,105 @@ public class Minimax : MonoBehaviour
         int perspective = unit.teamColor == _aiTeamColor ? 1 : -1; //the AI wants a high evaluation for itself and a low evaluation fot the player;
         evaluation *= perspective;
 
-        Move move = new Move(evaluation, unit, unit.currentTile);
-        
-        return move;
+
+        return evaluation;
 
     }
 
-    Move AISix(int depth, List<BaseUnit> units, BaseUnit EvaluationUnit)
+    double AI(int depth,double alpha, double beta, bool maximising, BaseUnit EvaluationUnit)
     {
-        Move BestMove = new Move(double.NegativeInfinity, null, null);
-        Move EvaluatedMove;
+        double evaluation;
 
         List<Tile> moves = new List<Tile>();
 
         if (depth == 0)
-            return EvaluateToo(EvaluationUnit);
+            return Evaluate(EvaluationUnit);
 
-
-        foreach (BaseUnit unit in units)
+        if (maximising) // working with the AI units because they need the highest evaluation
         {
-            List<Tile> ValidMmoves = CheckValidMoves(unit);
+            double maxEval = double.NegativeInfinity; //this is the lowest possible evaluation 
 
-
-            if (ValidMmoves != null)
+            foreach (BaseUnit unit in _aiUnits)
             {
+                List<Tile> ValidMmoves = CheckValidMoves(unit); //every unit gets their moves checked to see if they have valid moves
 
-                foreach (Tile tile in ValidMmoves)
+                if (ValidMmoves != null) //if they have valid moves
                 {
-                    moves.Add(tile);
-                }
+                    foreach (Tile tile in ValidMmoves)
+                        moves.Add(tile);            // add them to an exterior list so that even though the unit will move and get a new set of avalable moves, the moves that this loop will use are not effected
 
-                if (moves.Count != 0)
-                {
-                    Tile CurrentTile = unit.currentTile;
-
-                    foreach (Tile TargetTile in moves)
+                    if (moves.Count != 0) //just to check if the list isnt empty(MIGHT REMOVE)
                     {
-                        unit.Move(TargetTile);
+                        Tile currentTile = unit.currentTile; //save the current tile that the unit is on at the moment
 
-                        if (units == _aiUnits)
-                            EvaluatedMove = AISix(depth - 1, _playerUnits, unit);
-                        else
-                            EvaluatedMove = AISix(depth - 1, _aiUnits, unit);
-
-
-                        if(EvaluatedMove.evaluation > BestMove.evaluation)
+                        foreach (Tile targetTile in moves)
                         {
-                            BestMove = EvaluatedMove;
-                        }
 
-                        unit.Move(CurrentTile);
+                            unit.Move(targetTile); //for every available move this unit has, move it.
+
+                            evaluation = AI(depth - 1,alpha,beta, false, unit); //loop through itself 
+
+                            unit.Move(currentTile);
+
+                            if (evaluation > maxEval)
+                            {
+                                maxEval = evaluation;
+
+                                _bestMove.unit = unit;
+                                _bestMove.target = targetTile;
+                            }
+
+                            alpha = Math.Max(alpha, evaluation);
+                            if (beta <= alpha)
+                                break;
+
+                        }
                     }
                 }
             }
 
-            moves.Clear();
+            return maxEval;
+        }
+        else //First Loop: working with the player units
+        {
+            double minEval = double.PositiveInfinity; // the worst possible outcome for player units
 
+            foreach (BaseUnit unit in _playerUnits)
+            {
+                List<Tile> ValidMmoves = CheckValidMoves(unit); //working with the fact that the player has just gone; 
+
+                if (ValidMmoves != null)
+                {
+
+                    foreach (Tile tile in ValidMmoves)                   
+                        moves.Add(tile);
+                    
+                    if (moves.Count != 0)
+                    {
+                        Tile currentTile = unit.currentTile;
+
+                        foreach (Tile targetTile in moves)
+                        {
+                            unit.Move(targetTile);
+
+                            evaluation = AI(depth - 1, alpha, beta, true, unit); //loop through itself 
+
+                            minEval = Math.Min(evaluation, minEval);
+
+                            unit.Move(currentTile);
+
+                            beta = Math.Min(beta, evaluation);
+                            if (beta <= alpha)
+                                break;
+
+                        }
+                    }
+                }
+            }
+
+            return minEval;
         }
 
-        return BestMove;
     }
 
     List<Tile>  CheckValidMoves(BaseUnit unit)
@@ -260,6 +206,5 @@ public class Minimax : MonoBehaviour
             return null;
 
         return unit.highlightedTiles;
-    }
-   
+    }  
 }
