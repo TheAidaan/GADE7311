@@ -2,6 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+struct Move
+{
+    public double evaluation;
+    public BaseUnit unit;
+    public Tile target;
+
+    public Move(double Evaluation, BaseUnit Unit, Tile Target)
+    {
+        evaluation = Evaluation;
+        unit = Unit;
+        target = Target;
+    }
+}
 public class Minimax : MonoBehaviour
 {
     List<BaseUnit> _playerUnits;
@@ -39,14 +52,12 @@ public class Minimax : MonoBehaviour
         UnitManager.Static_SetMinMax(this, _aiTeamColor);
     }
 
-    IEnumerator Evaluate(BaseUnit unit)
+    double Evaluate(BaseUnit unit)
     {
         BaseUnit singletarget = null;
         List<BaseUnit> targets = new List<BaseUnit>();
-        bool testattacked=false;
-
-        unit.gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
-        double evaluation = 0;
+    
+        double evaluation  = double.PositiveInfinity;
         bool simpleEval = unit.characterCode == 'M' || unit.characterCode == 'R' ? true : false;
 
        
@@ -54,122 +65,201 @@ public class Minimax : MonoBehaviour
         {
             singletarget = unit.CheckForEnemy();
             if (singletarget != null)
-            {
-                singletarget.gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
-
                 evaluation += _evaluationScoreLibrary[singletarget.characterCode];
-                testattacked = true;
-            }   
+             
             
         }else
         {
             targets = unit.CheckForEnemies(true);
 
             foreach(BaseUnit target in targets)
-            {
-                testattacked = true;
-                target.gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
                 evaluation += _evaluationScoreLibrary[target.characterCode];
-            }            
+            
         }
 
         int perspective = unit.teamColor == _aiTeamColor ? 1 : -1; //the AI wants a high evaluation for itself and a low evaluation fot the player;
         evaluation *= perspective;
 
-        if (testattacked)
-        {
-            Debug.Log(evaluation);
-            Time.timeScale = 0;
-        }
-        yield return new WaitForSeconds(1f);
-
-        unit.gameObject.GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
-
-        if (testattacked)
-        {
-            if (singletarget!=null)
-                singletarget.gameObject.GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
-            foreach (BaseUnit target in targets)
-            {
-                target.gameObject.GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
-
-            }
-        }
+        return evaluation;
 
     }
     public void Play()
     {
-
-        StartCoroutine(AI(1));
-        //RandomMover();
-    }
-
-    IEnumerator AI(int depth)
-    {
         GameManager.STATIC_SetAIEvaluationStatus(true);
 
-        foreach(BaseUnit AIUnit in _aiUnits)
+
+        Move move = AISix(3, _aiUnits,null) ;
+
+        Debug.Log(move.evaluation);
+
+         move.target.gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
+         move.unit.gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
+
+
+
+        //Debug.Log(AIFour(2, _aiUnits));
+        GameManager.STATIC_SetAIEvaluationStatus(false);
+
+       //move.unit.Move(move.target);
+
+    }
+
+
+    int AIFour(int depth, List<BaseUnit> units)
+    {
+        List<Tile> moves = new List<Tile>();
+
+        if (depth == 0)
+            return 0;
+
+        int counter = 0;
+
+
+        foreach (BaseUnit unit in units)
         {
-            bool AIUnitCanMove = CheckValidMoves(AIUnit);
+            List<Tile> ValidMmoves = CheckValidMoves(unit);
+            
 
-            if (AIUnitCanMove)
+            if (ValidMmoves != null)
             {
-                AIUnit.Move(AIUnit.highlightedTiles[0]);
-                yield return StartCoroutine(Evaluate(AIUnit)); ;
-
-                foreach (BaseUnit playerUnit in _playerUnits)
+                
+                foreach (Tile tile in ValidMmoves)
                 {
-                    
-                    bool playerUnitCanMove = CheckValidMoves(playerUnit);
-
-                    if (playerUnitCanMove)
-                    {
-                        playerUnit.Move(playerUnit.highlightedTiles[0]);
-                        //yield return StartCoroutine(Evaluate(playerUnit)); ;
-
-                        playerUnit.UndoMove();
-                    }
-                    else
-                        continue;
-                    
-
+                    moves.Add(tile);
                 }
-                AIUnit.UndoMove();
+
+                if (moves.Count != 0)
+                {
+                    Tile CurrentTile = unit.currentTile;
+
+                    foreach (Tile TargetTile in moves)
+                    {
+
+                        unit.Move(TargetTile);
+
+                        counter++;
+
+                        Evaluate(unit);
+
+                        if (units == _aiUnits)
+                            counter += AIFour(depth - 1, _playerUnits);
+                        else
+                            counter += AIFour(depth - 1, _aiUnits);
+
+                        unit.Move(CurrentTile);
+                    }
+                }
             }
-            else
-            {
-                continue;
-            }
+
+            moves.Clear();
+           
+        }
+
+        return counter;
+    }
+
+    Move EvaluateToo(BaseUnit unit)
+    {
+        BaseUnit singletarget = null;
+        List<BaseUnit> targets = new List<BaseUnit>();
+
+        double evaluation = double.PositiveInfinity;
+        bool simpleEval = unit.characterCode == 'M' || unit.characterCode == 'R' ? true : false;
+
+
+        if (simpleEval)
+        {
+            singletarget = unit.CheckForEnemy();
+            if (singletarget != null)
+                evaluation += _evaluationScoreLibrary[singletarget.characterCode];
+
 
         }
-        
-        GameManager.STATIC_SetAIEvaluationStatus(false);
-    }
-
-    void RandomMover()
-    {
-        BaseUnit unit = _aiUnits[Random.Range(0, _aiUnits.Count)];
-
-        bool unitCanMove = CheckValidMoves(unit);
-
-        if (unitCanMove)
-            unit.Move(unit.highlightedTiles[Random.Range(0, unit.highlightedTiles.Count)]);
         else
-            RandomMover();
+        {
+            targets = unit.CheckForEnemies(true);
+
+            foreach (BaseUnit target in targets)
+                evaluation += _evaluationScoreLibrary[target.characterCode];
+
+        }
+
+        int perspective = unit.teamColor == _aiTeamColor ? 1 : -1; //the AI wants a high evaluation for itself and a low evaluation fot the player;
+        evaluation *= perspective;
+
+        Move move = new Move(evaluation, unit, unit.currentTile);
+        
+        return move;
 
     }
 
-    bool CheckValidMoves(BaseUnit unit)
+    Move AISix(int depth, List<BaseUnit> units, BaseUnit EvaluationUnit)
     {
+        Move BestMove = new Move(double.NegativeInfinity, null, null);
+        Move EvaluatedMove;
+
+        List<Tile> moves = new List<Tile>();
+
+        if (depth == 0)
+            return EvaluateToo(EvaluationUnit);
+
+
+        foreach (BaseUnit unit in units)
+        {
+            List<Tile> ValidMmoves = CheckValidMoves(unit);
+
+
+            if (ValidMmoves != null)
+            {
+
+                foreach (Tile tile in ValidMmoves)
+                {
+                    moves.Add(tile);
+                }
+
+                if (moves.Count != 0)
+                {
+                    Tile CurrentTile = unit.currentTile;
+
+                    foreach (Tile TargetTile in moves)
+                    {
+                        unit.Move(TargetTile);
+
+                        if (units == _aiUnits)
+                            EvaluatedMove = AISix(depth - 1, _playerUnits, unit);
+                        else
+                            EvaluatedMove = AISix(depth - 1, _aiUnits, unit);
+
+
+                        if(EvaluatedMove.evaluation > BestMove.evaluation)
+                        {
+                            BestMove = EvaluatedMove;
+                        }
+
+                        unit.Move(CurrentTile);
+                    }
+                }
+            }
+
+            moves.Clear();
+
+        }
+
+        return BestMove;
+    }
+
+    List<Tile>  CheckValidMoves(BaseUnit unit)
+    {
+
         if (!unit.gameObject.activeSelf)
-            return false;
+            return null;
 
         unit.CheckPath();
 
         if (unit.highlightedTiles.Count == 0)
-            return false;
+            return null;
 
-        return true;
+        return unit.highlightedTiles;
     }
    
 }

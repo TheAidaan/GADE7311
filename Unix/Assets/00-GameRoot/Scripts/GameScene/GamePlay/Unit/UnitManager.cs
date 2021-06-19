@@ -115,10 +115,8 @@ public class UnitManager : MonoBehaviour
     }
     public static void Static_SwitchSides(Color color)
     {
-        if (!GameManager.aiEvaluationInProgress)
-        {
+
             instance.SwitchSides(color);
-        }
         
     }
     void SwitchSides(Color color)

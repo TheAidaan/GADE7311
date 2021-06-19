@@ -45,6 +45,7 @@ public abstract class BaseUnit : MonoBehaviour
     public bool selected;
     public void CreateTilePath(int xDirection, int yDirection, int movement)
     {
+        
         //TargetPosition
         int currentX = currentTile.boardPosition.x;
         int currentY = currentTile.boardPosition.z; // z represents the world point, but it also represents the y point in the 2D array. 
@@ -55,8 +56,7 @@ public abstract class BaseUnit : MonoBehaviour
             currentX += xDirection;
             currentY += yDirection;
 
-            TileState tileState = TileState.None;
-            tileState = currentTile.board.ValidateTile(currentX, currentY, this);
+            TileState tileState = currentTile.board.ValidateTile(currentX, currentY, this);
 
             if (tileState != TileState.Free) //if the tile is out of bounds or has a friendly on it, then break the look and don't add anything to the available target tiles.
                 break;
@@ -68,6 +68,8 @@ public abstract class BaseUnit : MonoBehaviour
 
     public virtual void CheckPath()
     {
+        highlightedTiles.Clear();
+
         //horizantal 
         CreateTilePath(1, 0, movement.x);
         CreateTilePath(-1, 0, movement.x);
@@ -88,14 +90,16 @@ public abstract class BaseUnit : MonoBehaviour
     public void ShowHighlightedTiles()
     {
         foreach (Tile tile in highlightedTiles)
-            tile.HighLight();
+            tile.gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
+
             
     }
 
     public void HideHighlightedTiles()
     {
         foreach (Tile tile in highlightedTiles)
-            tile.StopHighLight();
+            tile.gameObject.GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
+
 
         highlightedTiles.Clear();
     }
@@ -124,7 +128,6 @@ public abstract class BaseUnit : MonoBehaviour
 
     public virtual void Move(Tile targetTile)
     {
-        TransitionToState(idleState);
         //Set previous tile
         previousTile = currentTile;
 
@@ -139,27 +142,39 @@ public abstract class BaseUnit : MonoBehaviour
         transform.position = currentTile.transform.position;
         targetTile = null;
 
-        UnitManager.Static_SwitchSides(teamColor);
+        if (!GameManager.aiEvaluationInProgress)
+        {
+            TransitionToState(idleState);
+            UnitManager.Static_SwitchSides(teamColor);
+        }
+        
     }
 
     #region Mouse events
     public void OnMouseOver()
     {
-        if (gameObject.CompareTag("Interactive"))
+        if (!GameManager.aiEvaluationInProgress)
         {
-            // Test for cells
-            CheckPath();
-            ShowHighlightedTiles(); //show highlighted tiles
-        }   
+            if (gameObject.CompareTag("Interactive"))
+            {
+                // Test for cells
+                CheckPath();
+                ShowHighlightedTiles(); //show highlighted tiles
+            }
+        }
     }
 
     private void OnMouseExit()
     {
-       
-        if (_currentState != hoverState) //don't clear the highlighted tiles while the player is draging a unit
+        if (!GameManager.aiEvaluationInProgress)
         {
-            HideHighlightedTiles();
+            if (_currentState != hoverState) //don't clear the highlighted tiles while the player is draging a unit
+            {
+                HideHighlightedTiles();
+            }
         }
+       
+        
     }
 
     public void Clicked()

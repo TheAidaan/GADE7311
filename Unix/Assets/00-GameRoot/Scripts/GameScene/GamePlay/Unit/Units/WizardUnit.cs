@@ -38,6 +38,8 @@ public class WizardUnit : BaseUnit
 
     public override void CheckPath()
     {
+        highlightedTiles.Clear();
+
         CreateTilePath(1); // top half
         CreateTilePath(-1);//bottom half
     }

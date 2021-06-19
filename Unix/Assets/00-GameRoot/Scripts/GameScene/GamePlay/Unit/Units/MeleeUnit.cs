@@ -19,11 +19,11 @@ public class MeleeUnit : BaseUnit
     public override BaseUnit CheckForEnemy()
     {
         RaycastHit[] hit = Physics.SphereCastAll(transform.position, 15f, Vector3.down);
+
         foreach (RaycastHit Hit in hit)
         {
             if (Hit.transform.gameObject.layer != transform.gameObject.layer)
             {
-                
                 BaseUnit Target = Hit.transform.gameObject.GetComponent<BaseUnit>();
                 if (Target != null)
                 {

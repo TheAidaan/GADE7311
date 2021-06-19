@@ -41,9 +41,6 @@ public class Board : MonoBehaviour
                 allTiles[finalX, y].GetComponent<Renderer>().material.color = new Color32(230, 220, 187, 255);
             }
         }
-
-        foreach (Tile tile in allTiles)
-            tile.GetColor(tile.gameObject.GetComponent<Renderer>().material.color);
     }
 
     public TileState ValidateTile(int targetX, int targetY, BaseUnit checkingUnit)
