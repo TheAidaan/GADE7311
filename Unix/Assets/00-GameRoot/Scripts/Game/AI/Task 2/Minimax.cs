@@ -13,7 +13,7 @@ struct Move
         target = Target;
     }
 }
-public class Minimax : MonoBehaviour
+public class MinMax : MonoBehaviour
 {
     List<BaseUnit> _playerUnits;
     List<BaseUnit> _aiUnits;
@@ -30,20 +30,15 @@ public class Minimax : MonoBehaviour
         
     };
 
-    void Start()
-    {
-        AssignUnits();
-        
-    }
-    void AssignUnits()
+    public void AssignUnits()
     {
         int rand = UnityEngine.Random.Range(0, 1);
 
-        _playerUnits = rand == 0 ? UnitManager.Static_GetBlueTeamUnits() : _playerUnits = UnitManager.Static_GetRedTeamUnits();
-        _aiUnits = rand == 0 ? UnitManager.Static_GetRedTeamUnits() : _playerUnits = UnitManager.Static_GetBlueTeamUnits();
+        _playerUnits = rand == 0 ? GameData.blueUnits : GameData.redUnits;
+        _aiUnits = rand == 0 ?  GameData.redUnits : GameData.blueUnits;
         _aiTeamColor = rand == 0 ? Color.red : Color.blue;
 
-        UnitManager.Static_SetMinMax(this, _aiTeamColor);
+        GameData.STATIC_SetAIColor(_aiTeamColor);
     }
 
     public void Play()

@@ -28,6 +28,9 @@ public class GameManager : MonoBehaviour
 
         _blueTeamScore = _redTeamScore = 0;
 
+        if (GameData.loadMinMaxScript)
+            gameObject.AddComponent<MinMax>();
+        
         Board board = GetComponent<Board>();
        _unitManager = GetComponent<UnitManager>();
 
@@ -38,10 +41,7 @@ public class GameManager : MonoBehaviour
 
         SetAIEvaluationStatus(false);
 
-        if (GameData.loadMinMaxScript)
-        {
-            gameObject.AddComponent<Minimax>();
-        }
+       
 
     }
 
