@@ -6,24 +6,23 @@ using TMPro;
 public class Game_UIManager : UIManager
 {
     bool _showPauseScreen, _showSettingsMenu, _showGameOverScreen;
+
     [SerializeField]
-    TextMeshProUGUI _txtRedTeamScore, _txtBlueTeamScore, txtWinner;
+    TextMeshProUGUI _txtInformation, _txtRedTeamScore, _txtBlueTeamScore, txtWinner;
 
     private void Start()
     {
-        UnitManager.updateUI += UpdateScores;
-        UnitManager.endGame += EndGame;
+        GameManager.updateUI += UpdateScores;
+        GameManager.endGame += EndGame;
 
 
     }
 
     void UpdateScores()
     {
-        _txtBlueTeamScore.text = UnitManager.blueTeamScore.ToString();
-        _txtRedTeamScore.text = UnitManager.redTeamScore.ToString();
+        _txtBlueTeamScore.text = GameManager.blueTeamScore.ToString();
+        _txtRedTeamScore.text = GameManager.redTeamScore.ToString();
     }
-
-    
 
     public override void SetUI()
     { /*
@@ -71,12 +70,31 @@ public class Game_UIManager : UIManager
         _showSettingsMenu = false;
         SetUI();
 
-        string winningTeam = UnitManager.redTeamWon ? "red" : "blue";
-        Color vertexColor = UnitManager.redTeamWon ? new Color32(210, 95, 64, 255) : new Color32(80, 124, 159, 255);
+        string winningTeam = GameManager.redTeamWon ? "red" : "blue";
+        Color vertexColor = GameManager.redTeamWon ? new Color32(210, 95, 64, 255) : new Color32(80, 124, 159, 255);
         txtWinner.text = winningTeam + "team Won!";
         txtWinner.color = vertexColor;
 
-        UnitManager.endGame -= EndGame;
+        GameManager.endGame -= EndGame;
+    }
+
+    public void DisplayInformation(string information)
+    {
+        StartCoroutine(IEnumerator_DisplayInformation(information));
+        
+    }
+    IEnumerator IEnumerator_DisplayInformation(string information)
+    {
+        _txtInformation.gameObject.SetActive(true);
+        _txtInformation.text = information;
+
+        yield return new WaitForSeconds(2.5f);
+
+        _txtInformation.gameObject.SetActive(true);
+        _txtInformation.text = string.Empty;
+
+
+       
     }
 
 }

@@ -134,7 +134,7 @@ public abstract class BaseUnit : MonoBehaviour
         if (!GameManager.aiEvaluationInProgress)
         {
             TransitionToState(idleState);
-            UnitManager.Static_SwitchSides(teamColor);
+            GameManager.Static_SwitchSides(teamColor);
         }
         
     }
@@ -272,7 +272,7 @@ public abstract class BaseUnit : MonoBehaviour
         if (_health <= 0)
         {
             gameObject.SetActive(false);
-            UnitManager.Static_UnitDeath(teamColor);
+            GameManager.Static_UnitDeath(teamColor);
         }
 
         yield return new WaitForSeconds(.5f);

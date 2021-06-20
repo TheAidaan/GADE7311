@@ -6,7 +6,7 @@ public class UnitManager : MonoBehaviour
 {
     public static UnitManager instance;
 
-    bool _gameOver, _activeMinMax;
+    bool _activeMinMax;
 
     GameObject _unitPrefab;
 
@@ -16,14 +16,9 @@ public class UnitManager : MonoBehaviour
     List<BaseUnit> _redTeamUnits = null;
     List<BaseUnit> _blueTeamUnits = null;
 
-    static int _blueTeamScore, _redTeamScore;
 
-    public static int blueTeamScore { get { return _blueTeamScore; } }
-    public static int redTeamScore { get { return _redTeamScore; } }
 
-    static bool _redTeamWon;
 
-    public static bool redTeamWon { get { return _redTeamWon; } }
 
     char[] _unitOrder = new char[12]
     {
@@ -39,12 +34,9 @@ public class UnitManager : MonoBehaviour
 
     };
 
-    public static event Action updateUI;
-    public static event Action endGame;
 
     private void Awake()
     {
-        _blueTeamScore = _redTeamScore = 0;
         _unitPrefab = Resources.Load<GameObject>("Prefabs/BaseUnit");
 
         instance = this;
@@ -52,13 +44,7 @@ public class UnitManager : MonoBehaviour
 
     #region Unit setup
 
-    public static void Static_Setup(Board board)
-    {
-        
-        instance.Setup(board);
-        
-    }
-    void Setup(Board board)
+    public void Setup(Board board)
     {
         //Create Player1 units
         _redTeamUnits = CreateUnits(Color.red, new Color32(210, 95, 64, 255), board);
@@ -127,13 +113,7 @@ public class UnitManager : MonoBehaviour
         }          
     }
 
-    public static void Static_SwitchSides(Color color)
-    {
-
-        instance.SwitchSides(color);
-        
-    }
-    void SwitchSides(Color color)
+    public void SwitchSides(Color color)
     {
 
         bool isRedTurn = color == Color.red ? true : false;
@@ -148,41 +128,8 @@ public class UnitManager : MonoBehaviour
         }
     }
 
-    public static void Static_UnitDeath(Color color)
-    {
-        instance.UnitDeath(color);
-    }
-    void UnitDeath(Color color)
-    {
-        if (color == Color.red)
-            _blueTeamScore += 1;
-        else
-            _redTeamScore += 1;
-
-        if (_redTeamScore == 12)
-        { 
-            _redTeamWon = true;
-            _gameOver = true;
-        }
-        if (_blueTeamScore == 12)
-        {
-            _redTeamWon = false;
-            _gameOver = true;
-        }
-
-        if (updateUI != null)
-        {
-            updateUI();
-        }
-        if(_gameOver)
-        {
-            if (endGame != null)
-            {
-                endGame();
-            }
-        }
-        
-    }
+   
+    
     #endregion
 
     #region AI

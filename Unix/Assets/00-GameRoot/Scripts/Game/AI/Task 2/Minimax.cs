@@ -43,11 +43,6 @@ public class Minimax : MonoBehaviour
         _aiUnits = rand == 0 ? UnitManager.Static_GetRedTeamUnits() : _playerUnits = UnitManager.Static_GetBlueTeamUnits();
         _aiTeamColor = rand == 0 ? Color.red : Color.blue;
 
-
-        _aiTeamColor = Color.red;
-        _aiUnits = UnitManager.Static_GetRedTeamUnits();
-        _playerUnits = UnitManager.Static_GetBlueTeamUnits();
-
         UnitManager.Static_SetMinMax(this, _aiTeamColor);
     }
 
@@ -55,7 +50,7 @@ public class Minimax : MonoBehaviour
     {
         GameManager.STATIC_SetAIEvaluationStatus(true);
 
-        AI(3,double.NegativeInfinity,double.PositiveInfinity, true, null);
+        AI(GameData.minMaxDepth,double.NegativeInfinity,double.PositiveInfinity, true, null);
 
         GameManager.STATIC_SetAIEvaluationStatus(false);
 
