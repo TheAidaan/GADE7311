@@ -11,8 +11,11 @@ public abstract class UIManager : MonoBehaviour
     {
         foreach (CanvasGroup child in GetComponentsInChildren<CanvasGroup>())
         {
+
             _childPanels.Add(child.gameObject);
+
         }
+        
         SetUI();
     }
     public virtual void SetUI() {}
@@ -21,7 +24,7 @@ public abstract class UIManager : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-    public void ReturnToIntroScene()          // can be used to restart game or play game from title menu
+    public void Quit()          // can be used to restart game or play game from title menu
     {
         SceneManager.LoadScene(0);
     }
