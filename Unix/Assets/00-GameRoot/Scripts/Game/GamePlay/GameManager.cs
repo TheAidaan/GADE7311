@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
         _blueTeamScore = _redTeamScore = 0;
 
         if (GameData.loadMinMaxScript)
-            gameObject.AddComponent<MinMax>();
+            gameObject.AddComponent<MiniMax>();
         
         Board board = GetComponent<Board>();
        _unitManager = GetComponent<UnitManager>();

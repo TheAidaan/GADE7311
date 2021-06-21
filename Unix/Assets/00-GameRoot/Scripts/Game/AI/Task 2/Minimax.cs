@@ -13,7 +13,7 @@ struct Move
         target = Target;
     }
 }
-public class MinMax : MonoBehaviour
+public class MiniMax : MonoBehaviour
 {
     List<BaseUnit> _playerUnits;
     List<BaseUnit> _aiUnits;
@@ -45,7 +45,7 @@ public class MinMax : MonoBehaviour
     {
         GameManager.STATIC_SetAIEvaluationStatus(true);
 
-        AI(GameData.minMaxDepth,double.NegativeInfinity,double.PositiveInfinity, true, null);
+        Algorithm(GameData.minMaxDepth,double.NegativeInfinity,double.PositiveInfinity, true, null);
 
         GameManager.STATIC_SetAIEvaluationStatus(false);
 
@@ -85,7 +85,7 @@ public class MinMax : MonoBehaviour
 
     }
 
-    double AI(int depth,double alpha, double beta, bool maximising, BaseUnit EvaluationUnit)
+    double Algorithm(int depth,double alpha, double beta, bool maximising, BaseUnit EvaluationUnit)
     {
         double evaluation;
 
@@ -116,7 +116,7 @@ public class MinMax : MonoBehaviour
 
                             unit.Move(targetTile); //for every available move this unit has, move it.
 
-                            evaluation = AI(depth - 1,alpha,beta, false, unit); //loop through itself 
+                            evaluation = Algorithm(depth - 1,alpha,beta, false, unit); //loop through itself 
 
                             unit.Move(currentTile);
 
@@ -139,7 +139,7 @@ public class MinMax : MonoBehaviour
 
             return maxEval;
 
-        }else //First Loop: working with the player units
+        }else 
         {
             double minEval = double.PositiveInfinity; // the worst possible outcome for player units
 
@@ -161,7 +161,7 @@ public class MinMax : MonoBehaviour
                         {
                             unit.Move(targetTile);
 
-                            evaluation = AI(depth - 1, alpha, beta, true, unit); //loop through itself 
+                            evaluation = Algorithm(depth - 1, alpha, beta, true, unit); //loop through itself 
 
                             minEval = Math.Min(evaluation, minEval);
 

@@ -7,7 +7,7 @@ public class UnitManager : MonoBehaviour
 
     GameObject _unitPrefab;
 
-    MinMax _minMax = null;
+    MiniMax _minMax = null;
 
     char[] _unitOrder = new char[12]
     {
@@ -43,7 +43,7 @@ public class UnitManager : MonoBehaviour
 
         if (GameData.loadMinMaxScript)
         {
-            _minMax = GetComponent<MinMax>();
+            _minMax = GetComponent<MiniMax>();
             _minMax.AssignUnits();
         }
 
@@ -57,6 +57,7 @@ public class UnitManager : MonoBehaviour
         for(int i = 0; i< _unitOrder.Length; i++)
         {
             Vector3 rotation = teamColor == Color.red ? new Vector3(0, 0, 0) : new Vector3(0, 180, 0);
+
             // instantiate the new unit
             GameObject newUnitObject = Instantiate(_unitPrefab, transform);
             newUnitObject.transform.eulerAngles = rotation;
@@ -95,12 +96,8 @@ public class UnitManager : MonoBehaviour
         string tag = value ? "Interactive" : "Untagged";
 
         foreach (BaseUnit unit in allUnits)
-        {
             if (unit.gameObject.activeSelf)
-            {
-                unit.gameObject.tag = tag;
-            }
-        }          
+                unit.gameObject.tag = tag;         
     }
 
     public void SwitchSides(Color color)
@@ -112,11 +109,9 @@ public class UnitManager : MonoBehaviour
         SetInteractive(GameData.redUnits, !isRedTurn);
         SetInteractive(GameData.blueUnits, isRedTurn);
 
-        if (GameData.aiColor != color) // the player just went and it is the players turn
-        {
-            
-            if(_minMax != null) { _minMax.Play(); }
-        }
+        if (GameData.aiColor != color) // the player just went and it is the players turn    
+            if(_minMax != null)
+                _minMax.Play();
     }
 
    
