@@ -8,13 +8,21 @@ public class Game_UIManager : UIManager
     bool _showPauseScreen, _showSettingsMenu, _showGameOverScreen;
 
     [SerializeField]
-    TextMeshProUGUI _txtInformation, _txtRedTeamScore, _txtBlueTeamScore, txtWinner;
+    TextMeshProUGUI _txtInformation, _txtRedTeamScore, _txtBlueTeamScore, _txtWinner;
 
     private void Start()
     {
         GameManager.updateUI += UpdateScores;
         GameManager.endGame += EndGame;
 
+        if (GameData.loadMinMaxScript)
+        {
+            string playerColor = GameData.aiColor == Color.red ? "blue" : "red";
+            Color vertexColor = GameData.aiColor == Color.red ?  new Color32(80, 124, 159, 255):new Color32(210, 95, 64, 255);
+
+            StartCoroutine(IEnumerator_DisplayInformation("you are playing as the " + playerColor + " team", vertexColor));
+
+        }
 
     }
 
@@ -72,21 +80,18 @@ public class Game_UIManager : UIManager
 
         string winningTeam = GameManager.redTeamWon ? "red" : "blue";
         Color vertexColor = GameManager.redTeamWon ? new Color32(210, 95, 64, 255) : new Color32(80, 124, 159, 255);
-        txtWinner.text = winningTeam + "team Won!";
-        txtWinner.color = vertexColor;
+        _txtWinner.text = winningTeam + "team Won!";
+        _txtWinner.color = vertexColor;
 
         GameManager.endGame -= EndGame;
     }
 
-    public void DisplayInformation(string information)
-    {
-        StartCoroutine(IEnumerator_DisplayInformation(information));
-        
-    }
-    IEnumerator IEnumerator_DisplayInformation(string information)
+    IEnumerator IEnumerator_DisplayInformation(string information, Color vertexColor)
     {
         _txtInformation.gameObject.SetActive(true);
         _txtInformation.text = information;
+        _txtInformation.color = vertexColor;
+
 
         yield return new WaitForSeconds(2.5f);
 

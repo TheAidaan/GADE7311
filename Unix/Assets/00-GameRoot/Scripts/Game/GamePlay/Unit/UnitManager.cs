@@ -111,7 +111,16 @@ public class UnitManager : MonoBehaviour
 
         if (GameData.aiColor != color) // the player just went and it is the players turn    
             if(_minMax != null)
+            {
+                if(GameData.aiColor == Color.red) 
+                  SetInteractive(GameData.redUnits, false);
+                else 
+                  SetInteractive(GameData.blueUnits, false);
+
+
                 _minMax.Play();
+            }
+                
     }
 
    

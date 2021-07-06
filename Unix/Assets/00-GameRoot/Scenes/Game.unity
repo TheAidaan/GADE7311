@@ -755,7 +755,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2122599453
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4027,7 +4027,7 @@ MonoBehaviour:
   _childPanels:
   - {fileID: 3813615866680716324}
   - {fileID: 3813615866942378483}
-  _txtInformation: {fileID: 0}
+  _txtInformation: {fileID: 2122599454}
   _txtRedTeamScore: {fileID: 8592116736270760426}
   _txtBlueTeamScore: {fileID: 2820495553447040613}
   txtWinner: {fileID: 7384067451005924734}
@@ -4951,10 +4951,10 @@ RectTransform:
   m_Father: {fileID: 3813615867093077037}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -455, y: 50}
+  m_SizeDelta: {x: 87, y: 50}
   m_Pivot: {x: 1, y: 1}
 --- !u!222 &7242934080946007138
 CanvasRenderer:

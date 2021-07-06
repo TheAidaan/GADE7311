@@ -66,8 +66,6 @@ public class MiniMax : MonoBehaviour
             singletarget = unit.CheckForEnemy();
             if (singletarget != null)
                 evaluation += _evaluationScoreLibrary[singletarget.characterCode];
-
-
         }
         else
         {
