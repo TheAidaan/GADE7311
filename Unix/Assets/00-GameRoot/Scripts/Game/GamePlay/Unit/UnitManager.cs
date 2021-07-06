@@ -37,8 +37,9 @@ public class UnitManager : MonoBehaviour
 
         GameData.STATIC_SetBlueUnits(CreateUnits(Color.blue, new Color32(80, 124, 159, 255) , board));
 
+
         PlaceUnits(1, 0, GameData.redUnits, board);
-        PlaceUnits(6, 7, GameData.blueUnits, board);
+        PlaceUnits(GameData.boardLength - 2, GameData.boardLength - 1, GameData.blueUnits, board);
 
 
         if (GameData.loadMinMaxScript)
@@ -79,11 +80,13 @@ public class UnitManager : MonoBehaviour
 
     void PlaceUnits(int secondRow,int firstRow,List<BaseUnit> units, Board board)
     {
+        int offset = GameData.generateBoard ? 2 : 1;
+
         for (int i = 0; i < 6; i++)
         {
-            units[i].Place(board.allTiles[i+1, secondRow]);
+            units[i].Place(board.allTiles[i+ offset, secondRow]);
 
-            units[i+6].Place(board.allTiles[i+1, firstRow]);
+            units[i+6].Place(board.allTiles[i+ offset, firstRow]);
         }
     }
 

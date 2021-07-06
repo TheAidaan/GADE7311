@@ -6,9 +6,15 @@ using UnityEngine.SceneManagement;
 public class Intro_UIManager : UIManager
 {
     bool _showTitleScreen = true;
-    bool _showSettingScreen, _showPlayOptions, _showDifficultyOptions;
+    bool _showSettingScreen, _showPlayOptions, _showDifficultyOptions, _showAdvancedPlayOptions;
     [SerializeField]
     GameData data;
+    private void Start()
+    {
+        GameData.STATIC_LoadMinMaxScript(false);
+        GameData.STATIC_GenerateBoard(false);
+
+    }
 
     public override void SetUI()
     { /*
@@ -22,12 +28,15 @@ public class Intro_UIManager : UIManager
         _childPanels[1].SetActive(_showSettingScreen);
         _childPanels[2].SetActive(_showPlayOptions); 
         _childPanels[3].SetActive(_showDifficultyOptions);
+        _childPanels[4].SetActive(_showAdvancedPlayOptions);
     }
     public void Leave()
     {
         _showTitleScreen = true;
         _showSettingScreen = false;
         _showPlayOptions = false;
+        _showDifficultyOptions = false;
+        _showAdvancedPlayOptions = false;
         SetUI();
     }
 
@@ -44,30 +53,48 @@ public class Intro_UIManager : UIManager
         SetUI();
     }
 
-    public void LoadSinglePlayer(int depth)
-    {
-        SceneManager.LoadScene(1);
-        GameData.STATIC_SetMinMaxDepth(depth);
-        GameData.STATIC_LoadMinMaxScript(true);
-
-    }
 
     public void ShowDifficultyOptions()
     {
-        _showPlayOptions = false;
         _showDifficultyOptions = true;
+        _showPlayOptions = false;
         SetUI();
     }
-    
-    public void LoadMultiPlayer()
-    {
-        SceneManager.LoadScene(1);
-        GameData.STATIC_LoadMinMaxScript(false);
 
+    public void ShowAdvancedPlayOptions()
+    {
+        _showAdvancedPlayOptions = true;
+        _showPlayOptions = false;
+        SetUI();
     }
 
-    public void QuitGame()
+
+    public void LoadMultiPlayer()
     {
-        Application.Quit();
+
+        GameData.STATIC_SetBoardLength(8);
+        GameData.STATIC_LoadMinMaxScript(false);
+
+        SceneManager.LoadScene(1);
+    }
+
+    public void LoadSinglePlayer(int depth)
+    {
+
+        GameData.STATIC_SetBoardLength(8);
+        GameData.STATIC_SetMinMaxDepth(depth);
+        GameData.STATIC_LoadMinMaxScript(true);
+
+        SceneManager.LoadScene(1);
+    }
+
+    public void AdvancedPlayer()
+    {
+
+        GameData.STATIC_SetBoardLength(10);
+        GameData.STATIC_GenerateBoard(true);
+
+
+        SceneManager.LoadScene(1);
     }
 }

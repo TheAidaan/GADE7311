@@ -28,6 +28,10 @@ public abstract class UIManager : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 
     public void SetSoundVolume(float volume)
     {
