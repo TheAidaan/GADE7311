@@ -13,7 +13,7 @@ public class Intro_UIManager : UIManager
     {
         GameData.STATIC_LoadMinMaxScript(false);
         GameData.STATIC_GenerateBoard(false);
-
+        GameData.STATIC_SetAIBattle(false);
     }
 
     public override void SetUI()
@@ -88,12 +88,23 @@ public class Intro_UIManager : UIManager
         SceneManager.LoadScene(1);
     }
 
-    public void AdvancedPlayer()
+    public void SpectatorPlayer()
     {
-
         GameData.STATIC_SetBoardLength(10);
         GameData.STATIC_GenerateBoard(true);
 
+        GameData.STATIC_SetMinMaxDepth(2);
+        GameData.STATIC_LoadMinMaxScript(true);
+
+        GameData.STATIC_SetAIBattle(true);
+
+        SceneManager.LoadScene(1);
+    }
+
+    public void AdvancedPlayer()
+    {
+        GameData.STATIC_SetBoardLength(10);
+        GameData.STATIC_GenerateBoard(true);
 
         SceneManager.LoadScene(1);
     }

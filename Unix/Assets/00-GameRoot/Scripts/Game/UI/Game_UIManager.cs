@@ -20,7 +20,9 @@ public class Game_UIManager : UIManager
             string playerColor = GameData.aiColor == Color.red ? "blue" : "red";
             Color vertexColor = GameData.aiColor == Color.red ?  new Color32(80, 124, 159, 255):new Color32(210, 95, 64, 255);
 
-            StartCoroutine(IEnumerator_DisplayInformation("you are playing as the " + playerColor + " team", vertexColor));
+            if (!GameData.aiBattle)
+                StartCoroutine(IEnumerator_DisplayInformation("you are playing as the " + playerColor + " team", vertexColor));
+
 
         }
 

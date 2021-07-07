@@ -9,11 +9,10 @@ public class GameData : SingletonScriptableObject<GameData>
     public static int minMaxDepth { get { return _minMaxDepth; } }
     public static int boardLength { get { return _boardLength; } }
 
-    static bool _loadMinMaxScript;
+    static bool _loadMinMaxScript, _generateBoard,_aiBattle;
     public static bool loadMinMaxScript { get { return _loadMinMaxScript; } }
-
-    static bool _generateBoard;
     public static bool generateBoard { get { return _generateBoard; } }
+    public static bool aiBattle { get { return _aiBattle; } }
 
     static List<BaseUnit> _redUnits;
     public static List<BaseUnit> redUnits { get { return _redUnits; } }
@@ -55,6 +54,12 @@ public class GameData : SingletonScriptableObject<GameData>
         _generateBoard = generate;
 
         _boardLength = _generateBoard ? 10:8;
+    } 
+    
+    void SetAIBattle(bool battle)
+    {
+        _aiBattle = battle;
+
     }
 
 
@@ -90,4 +95,11 @@ public class GameData : SingletonScriptableObject<GameData>
     {
         instance.SetBoardLength(length);
     }
+
+    public static void STATIC_SetAIBattle (bool battle)
+    {
+        instance.SetAIBattle(battle);
+    }
+
+
 }
