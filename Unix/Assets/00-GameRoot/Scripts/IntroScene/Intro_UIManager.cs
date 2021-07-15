@@ -15,7 +15,7 @@ public class Intro_UIManager : UIManager
         GameData.STATIC_LoadMinMaxScript(false);
         GameData.STATIC_GenerateBoard(false);
         GameData.STATIC_SetAIBattle(false);
-        GameData.STATIC_LoadGeneticAIScript(false);
+        GameData.STATIC_LoadMachineLearningScript(false);
         GameData.STATIC_SetMinMaxColor(Color.white);
         GameData.STATIC_SetGeneticAIColor(Color.white);
         GameData.STATIC_SetPlayerColor(Color.white);
@@ -95,12 +95,12 @@ public class Intro_UIManager : UIManager
     public void SpectatorPlayer()
     {
         GameData.STATIC_SetBoardLength(10);
-        GameData.STATIC_GenerateBoard(false);
+        GameData.STATIC_GenerateBoard(true);
 
         GameData.STATIC_SetMinMaxDepth(2);
         GameData.STATIC_LoadMinMaxScript(true);
 
-        GameData.STATIC_LoadGeneticAIScript(true);
+        GameData.STATIC_LoadMachineLearningScript(true);
 
         GameData.STATIC_SetAIBattle(true);
 

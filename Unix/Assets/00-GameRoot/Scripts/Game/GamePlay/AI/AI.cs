@@ -34,10 +34,6 @@ public abstract class AI : MonoBehaviour
             GameData.STATIC_SetPlayerColor(playerColor);
 
         }
-
-        //aiUnits = GameData.blueUnits;
-        //teamColor = Color.blue;
-        //otherUnits = GameData.redUnits;
     }
 
     protected List<Tile> CheckValidMoves(BaseUnit unit)

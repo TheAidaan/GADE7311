@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GeneticAlgoirthm : AI
+public class MachineLearning : AI
 {
     // Start is called before the first frame update
 
@@ -23,7 +23,6 @@ public class GeneticAlgoirthm : AI
     }
     public override void Play()
     {
-        Debug.Log("Genetic");
 
         RandomMover();
 

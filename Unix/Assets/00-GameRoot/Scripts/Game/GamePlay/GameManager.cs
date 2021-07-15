@@ -38,8 +38,8 @@ public class GameManager : MonoBehaviour
         if (GameData.loadMinMaxScript)
             gameObject.AddComponent<MiniMax>();
 
-        if (GameData.loadGeneticAIScript)
-            gameObject.AddComponent<GeneticAlgoirthm>();
+        if (GameData.loadMachineLearningScript)
+            gameObject.AddComponent<MachineLearning>();
 
         Board board = GetComponent<Board>();
        _unitManager = GetComponent<UnitManager>();
@@ -155,7 +155,7 @@ public class GameManager : MonoBehaviour
         GameData.STATIC_GenerateBoard(false);
         GameData.STATIC_SetMinMaxColor(Color.red);
         GameData.STATIC_SetPlayerColor(Color.red);
-        GameData.STATIC_LoadGeneticAIScript(true);
+        GameData.STATIC_LoadMachineLearningScript(true);
         GameData.STATIC_SetAIBattle(false);
 
 

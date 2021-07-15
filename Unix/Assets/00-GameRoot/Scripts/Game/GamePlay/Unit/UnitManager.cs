@@ -8,7 +8,7 @@ public class UnitManager : MonoBehaviour
     GameObject _unitPrefab;
 
     MiniMax _minMax = null;
-    GeneticAlgoirthm _geneticAlgoirthm = null;
+    MachineLearning _machineLearning = null;
 
     char[] _unitOrder = new char[12]
     {
@@ -49,14 +49,24 @@ public class UnitManager : MonoBehaviour
             _minMax.AssignUnits();
         }
 
-        if (GameData.loadGeneticAIScript)
+        if (GameData.loadMachineLearningScript)
         {
-            _geneticAlgoirthm = GetComponent<GeneticAlgoirthm>();
-            _geneticAlgoirthm.AssignUnits();
+            _machineLearning = GetComponent<MachineLearning>();
+            _machineLearning.AssignUnits();
+
         }
 
         if (GameData.aiBattle)
         {
+            int rand = UnityEngine.Random.Range(0, 1);
+
+           
+            if (rand == 1)
+                _machineLearning.AssignUnits();
+            else
+                _minMax.AssignUnits();
+
+
             SetInteractive(GameData.redUnits, false);
             SetInteractive(GameData.blueUnits, false);
             SwitchSides(Color.red);
@@ -119,7 +129,6 @@ public class UnitManager : MonoBehaviour
 
     public void SwitchSides(Color colortThatJustPlayed)
     {
-        Debug.Log("Switching Sides");
 
         if (!GameData.aiBattle)
         {
@@ -142,24 +151,24 @@ public class UnitManager : MonoBehaviour
                     GameManager.play += _minMax.Play;
                 }
 
-                if (_geneticAlgoirthm != null)
+                if (_machineLearning != null)
                 {
                     if (GameData.geneticAIColor == Color.red)
                         SetInteractive(GameData.redUnits, false);
                     else
                         SetInteractive(GameData.blueUnits, false);
 
-                    GameManager.play += _geneticAlgoirthm.Play;
+                    GameManager.play += _machineLearning.Play;
                 }
 
             }
         }
         else
         {
-            if (_geneticAlgoirthm != null)
+            if (_machineLearning != null)
             {
                 if (GameData.geneticAIColor != colortThatJustPlayed)
-                    GameManager.play += _geneticAlgoirthm.Play;
+                    GameManager.play += _machineLearning.Play;
             }
 
             if (_minMax != null)

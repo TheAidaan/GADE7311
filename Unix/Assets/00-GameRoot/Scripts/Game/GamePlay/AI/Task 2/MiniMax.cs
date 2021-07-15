@@ -14,24 +14,13 @@ public class MiniMax : AI
     };
     public override void AssignUnits()
     {
-
-        if (GameData.geneticAIColor == Color.white)
-        {
-           
-            base.AssignUnits();
-        }
-        else
-        {
-            aiUnits = GameData.geneticAIColor == Color.red ? GameData.blueUnits : GameData.redUnits;
-            teamColor = GameData.geneticAIColor == Color.red ? Color.blue : Color.red;
-        }
-
+        base.AssignUnits();         //the minimax algorthim gets to choose a team first and the genetic algorthim must take what's left over in an AI Battle
+        
         GameData.STATIC_SetMinMaxColor(teamColor);
     }
 
     public override void Play()
     {
-        Debug.Log("Minimax");
 
         GameManager.STATIC_SetAIEvaluationStatus(true);
 

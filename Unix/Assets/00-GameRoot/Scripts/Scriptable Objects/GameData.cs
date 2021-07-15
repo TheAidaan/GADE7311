@@ -10,12 +10,12 @@ public class GameData : SingletonScriptableObject<GameData>
 
     //AI
 
-    static bool _loadMinMaxScript,_loadGeneticAIScript, _generateBoard,_aiBattle;
+    static bool _loadMinMaxScript, _loadMachineLearningScript, _generateBoard,_aiBattle;
     public static bool loadMinMaxScript { get { return _loadMinMaxScript; } }
 
     static int _minMaxDepth, _boardLength;
     public static int minMaxDepth { get { return _minMaxDepth; } }
-    public static bool loadGeneticAIScript { get { return _loadGeneticAIScript; } }
+    public static bool loadMachineLearningScript { get { return _loadMachineLearningScript; } }
     public static bool generateBoard { get { return _generateBoard; } }
     public static bool aiBattle { get { return _aiBattle; } }
 
@@ -48,12 +48,12 @@ public class GameData : SingletonScriptableObject<GameData>
     void SetMinMaxDepth(int depth)
     {
         _minMaxDepth = depth;
-    }    
-        //Genetic
+    }
+    //loadMachineLearningScript
 
-    void GeneticAIScript(bool load)
+    void LoadMachineLearningScript(bool load)
     {
-        _loadGeneticAIScript = load;
+        _loadMachineLearningScript = load;
     }
 
             //Board
@@ -142,9 +142,9 @@ public class GameData : SingletonScriptableObject<GameData>
 
     //Genetic AI
     
-    public static void STATIC_LoadGeneticAIScript(bool load)
+    public static void STATIC_LoadMachineLearningScript(bool load)
     {
-        instance.GeneticAIScript(load);
+        instance.LoadMachineLearningScript(load);
     }
 
     //TASK 3
