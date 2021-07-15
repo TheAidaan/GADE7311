@@ -2,54 +2,47 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-struct Move
+
+public class MiniMax : AI
 {
-    public BaseUnit unit;
-    public Tile target;
-
-    public Move(BaseUnit Unit, Tile Target)
-    {
-        unit = Unit;
-        target = Target;
-    }
-}
-public class MiniMax : MonoBehaviour
-{
-    List<BaseUnit> _playerUnits;
-    List<BaseUnit> _aiUnits;
-
-    Color _aiTeamColor;
-
-    Move _bestMove;
-
-    Dictionary<char, double> _evaluationScoreLibrary = new Dictionary<char, double>()
+    Dictionary<char, double> evaluationScoreLibrary = new Dictionary<char, double>()
     {
         {'M', 1 },  
         {'R', 2 },  
         {'W', 3 },  
         
     };
-
-    public void AssignUnits()
+    public override void AssignUnits()
     {
-        int rand = UnityEngine.Random.Range(0, 1);
 
-        _playerUnits = rand == 0 ? GameData.blueUnits : GameData.redUnits;
-        _aiUnits = rand == 0 ?  GameData.redUnits : GameData.blueUnits;
-        _aiTeamColor = rand == 0 ? Color.red : Color.blue;
+        if (GameData.geneticAIColor == Color.white)
+        {
+           
+            base.AssignUnits();
+        }
+        else
+        {
+            aiUnits = GameData.geneticAIColor == Color.red ? GameData.blueUnits : GameData.redUnits;
+            teamColor = GameData.geneticAIColor == Color.red ? Color.blue : Color.red;
+        }
 
-        GameData.STATIC_SetAIColor(_aiTeamColor);
+        GameData.STATIC_SetMinMaxColor(teamColor);
     }
 
-    public void Play()
+    public override void Play()
     {
+        Debug.Log("Minimax");
+
         GameManager.STATIC_SetAIEvaluationStatus(true);
 
         Algorithm(GameData.minMaxDepth,double.NegativeInfinity,double.PositiveInfinity, true, null);
 
         GameManager.STATIC_SetAIEvaluationStatus(false);
 
-        _bestMove.unit.Move(_bestMove.target);
+        bestMove.unit.Move(bestMove.target);
+
+        GameManager.play -= Play;
+
     }
 
     double Evaluate(BaseUnit unit)
@@ -65,18 +58,18 @@ public class MiniMax : MonoBehaviour
         {
             singletarget = unit.CheckForEnemy();
             if (singletarget != null)
-                evaluation += _evaluationScoreLibrary[singletarget.characterCode];
+                evaluation += evaluationScoreLibrary[singletarget.characterCode];
         }
         else
         {
             targets = unit.CheckForEnemies(true);
 
             foreach (BaseUnit target in targets)
-                evaluation += _evaluationScoreLibrary[target.characterCode];
+                evaluation += evaluationScoreLibrary[target.characterCode];
 
         }
 
-        int perspective = unit.teamColor == _aiTeamColor ? 1 : -1; //the AI wants a high evaluation for itself and a low evaluation fot the player;
+        int perspective = unit.teamColor == teamColor ? 1 : -1; //the AI wants a high evaluation for itself and a low evaluation fot the other;
         evaluation *= perspective;
 
         return evaluation;
@@ -96,7 +89,7 @@ public class MiniMax : MonoBehaviour
         {
             double maxEval = double.NegativeInfinity; //this is the lowest possible evaluation 
 
-            foreach (BaseUnit unit in _aiUnits)
+            foreach (BaseUnit unit in aiUnits)
             {
                 List<Tile> ValidMmoves = CheckValidMoves(unit); //every unit gets their moves checked to see if they have valid moves
 
@@ -122,8 +115,8 @@ public class MiniMax : MonoBehaviour
                             {
                                 maxEval = evaluation;
 
-                                _bestMove.unit = unit;
-                                _bestMove.target = targetTile;
+                                bestMove.unit = unit;
+                                bestMove.target = targetTile;
                             }
 
                             alpha = Math.Max(alpha, evaluation);
@@ -139,11 +132,11 @@ public class MiniMax : MonoBehaviour
 
         }else 
         {
-            double minEval = double.PositiveInfinity; // the worst possible outcome for player units
+            double minEval = double.PositiveInfinity; // the worst possible outcome for other units
 
-            foreach (BaseUnit unit in _playerUnits)
+            foreach (BaseUnit unit in otherUnits)
             {
-                List<Tile> ValidMmoves = CheckValidMoves(unit); //working with the fact that the player has just gone; 
+                List<Tile> ValidMmoves = CheckValidMoves(unit); //working with the fact that the other has just gone; 
 
                 if (ValidMmoves != null)
                 {
@@ -180,17 +173,5 @@ public class MiniMax : MonoBehaviour
 
     }
 
-    List<Tile>  CheckValidMoves(BaseUnit unit)
-    {
-
-        if (!unit.gameObject.activeSelf)
-            return null;
-
-        unit.CheckPath();
-
-        if (unit.highlightedTiles.Count == 0)
-            return null;
-
-        return unit.highlightedTiles;
-    }  
+    
 }

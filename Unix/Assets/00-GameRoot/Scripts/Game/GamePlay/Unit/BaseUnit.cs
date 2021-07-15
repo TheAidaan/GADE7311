@@ -133,6 +133,7 @@ public abstract class BaseUnit : MonoBehaviour
 
         if (!GameManager.aiEvaluationInProgress)
         {
+
             TransitionToState(idleState);
             GameManager.Static_SwitchSides(teamColor);
         }

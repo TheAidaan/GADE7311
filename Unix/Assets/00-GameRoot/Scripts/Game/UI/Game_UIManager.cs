@@ -15,15 +15,25 @@ public class Game_UIManager : UIManager
         GameManager.updateUI += UpdateScores;
         GameManager.endGame += EndGame;
 
-        if (GameData.loadMinMaxScript)
+        if (!GameData.aiBattle)
         {
-            string playerColor = GameData.aiColor == Color.red ? "blue" : "red";
-            Color vertexColor = GameData.aiColor == Color.red ?  new Color32(80, 124, 159, 255):new Color32(210, 95, 64, 255);
+            Color vertexColor;
+            string playerColor;
+            if (GameData.geneticAIColor == Color.red || GameData.minMaxColor == Color.red)
+            {
+                vertexColor = new Color32(80, 124, 159, 255);
+                playerColor = "blue";
 
-            if (!GameData.aiBattle)
-                StartCoroutine(IEnumerator_DisplayInformation("you are playing as the " + playerColor + " team", vertexColor));
+            }
+            else
+            {
+                vertexColor = new Color32(210, 95, 64, 255);
+                playerColor = "red";
 
+            }
 
+            
+            StartCoroutine(IEnumerator_DisplayInformation("you are playing as the " + playerColor + " team", vertexColor));
         }
 
     }

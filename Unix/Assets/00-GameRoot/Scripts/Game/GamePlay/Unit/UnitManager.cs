@@ -8,6 +8,7 @@ public class UnitManager : MonoBehaviour
     GameObject _unitPrefab;
 
     MiniMax _minMax = null;
+    GeneticAlgoirthm _geneticAlgoirthm = null;
 
     char[] _unitOrder = new char[12]
     {
@@ -48,7 +49,20 @@ public class UnitManager : MonoBehaviour
             _minMax.AssignUnits();
         }
 
-        SwitchSides(Color.red);
+        if (GameData.loadGeneticAIScript)
+        {
+            _geneticAlgoirthm = GetComponent<GeneticAlgoirthm>();
+            _geneticAlgoirthm.AssignUnits();
+        }
+
+        if (GameData.aiBattle)
+        {
+            SetInteractive(GameData.redUnits, false);
+            SetInteractive(GameData.blueUnits, false);
+            SwitchSides(Color.red);
+        }
+        else
+            SwitchSides(Color.red);
     }
 
     List<BaseUnit> CreateUnits(Color teamColor, Color32 unitColor,Board board)
@@ -103,31 +117,66 @@ public class UnitManager : MonoBehaviour
                 unit.gameObject.tag = tag;         
     }
 
-    public void SwitchSides(Color color)
+    public void SwitchSides(Color colortThatJustPlayed)
     {
+        Debug.Log("Switching Sides");
 
-        bool isRedTurn = color == Color.red ? true : false;
-        
-        //set the interactivity
-        SetInteractive(GameData.redUnits, !isRedTurn);
-        SetInteractive(GameData.blueUnits, isRedTurn);
+        if (!GameData.aiBattle)
+        {
+            bool isRedTurn = colortThatJustPlayed == Color.red ? true : false;
 
-        if (GameData.aiColor != color) // the player just went and it is the players turn    
-            if(_minMax != null)
+            //set the interactivity
+            SetInteractive(GameData.redUnits, !isRedTurn);
+            SetInteractive(GameData.blueUnits, isRedTurn);
+
+            if (GameData.playerColor == colortThatJustPlayed) // the player just went and it is the ai's turn  {
             {
-                if(GameData.aiColor == Color.red) 
-                  SetInteractive(GameData.redUnits, false);
-                else 
-                  SetInteractive(GameData.blueUnits, false);
+                if (_minMax != null)
+                {
+                    if (GameData.minMaxColor == Color.red)
+                        SetInteractive(GameData.redUnits, false);
+                    else
+                        SetInteractive(GameData.blueUnits, false);
 
 
-                _minMax.Play();
+                    GameManager.play += _minMax.Play;
+                }
+
+                if (_geneticAlgoirthm != null)
+                {
+                    if (GameData.geneticAIColor == Color.red)
+                        SetInteractive(GameData.redUnits, false);
+                    else
+                        SetInteractive(GameData.blueUnits, false);
+
+                    GameManager.play += _geneticAlgoirthm.Play;
+                }
+
             }
+        }
+        else
+        {
+            if (_geneticAlgoirthm != null)
+            {
+                if (GameData.geneticAIColor != colortThatJustPlayed)
+                    GameManager.play += _geneticAlgoirthm.Play;
+            }
+
+            if (_minMax != null)
+            {
+                if (GameData.minMaxColor != colortThatJustPlayed)
+                    GameManager.play += _minMax.Play;
+            }
+        }
+
+        GameManager.Static_Play();
+           
                 
     }
 
-   
-    
+
+
     #endregion
 
+    
 }

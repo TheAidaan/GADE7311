@@ -1,6 +1,6 @@
 using UnityEngine;
 using System;
-using System.Collections.Generic;
+using System.Collections;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
@@ -20,7 +20,11 @@ public class GameManager : MonoBehaviour
     bool _gameOver;
 
     public static event Action updateUI;
+    public static event Action play;
     public static event Action endGame;
+
+    [SerializeField]
+    GameData test;
 
     private void Awake()
     {
@@ -28,16 +32,20 @@ public class GameManager : MonoBehaviour
 
         _blueTeamScore = _redTeamScore = 0;
 
+        //tests();
+
+
         if (GameData.loadMinMaxScript)
             gameObject.AddComponent<MiniMax>();
-        
+
+        if (GameData.loadGeneticAIScript)
+            gameObject.AddComponent<GeneticAlgoirthm>();
+
         Board board = GetComponent<Board>();
        _unitManager = GetComponent<UnitManager>();
 
         board.Create();
         _unitManager.Setup(board);
-
-
 
         SetAIEvaluationStatus(false);
 
@@ -91,18 +99,26 @@ public class GameManager : MonoBehaviour
             _gameOver = true;
         }
 
-        if (updateUI != null)
-        {
-            updateUI();
-        }
+
+        updateUI?.Invoke();
+        
 
         if (_gameOver)
         {
-            if (endGame != null)
-            {
-                endGame();
-            }
+            endGame?.Invoke();
         }
+
+    }
+
+    void Play()
+    {
+        StartCoroutine(WaitToPlay());
+    }
+
+    public IEnumerator WaitToPlay()
+    {
+        yield return new WaitForSeconds(2);
+        play?.Invoke();
 
     }
 
@@ -124,6 +140,26 @@ public class GameManager : MonoBehaviour
     public static void Static_UnitDeath(Color color)
     {
         instance.UnitDeath(color);
+    }
+
+    public static void Static_Play()
+    {
+        instance.Play();
+    }
+
+
+
+    void tests()                                        ////////TEST REMOVE///////
+    {
+        GameData.STATIC_SetBoardLength(8);
+        GameData.STATIC_GenerateBoard(false);
+        GameData.STATIC_SetMinMaxColor(Color.red);
+        GameData.STATIC_SetPlayerColor(Color.red);
+        GameData.STATIC_LoadGeneticAIScript(true);
+        GameData.STATIC_SetAIBattle(false);
+
+
+
     }
 
 }

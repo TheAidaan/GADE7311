@@ -5,14 +5,21 @@ using UnityEngine;
 [CreateAssetMenu]
 public class GameData : SingletonScriptableObject<GameData>
 {
-    static int _minMaxDepth, _boardLength;
-    public static int minMaxDepth { get { return _minMaxDepth; } }
+    
     public static int boardLength { get { return _boardLength; } }
 
-    static bool _loadMinMaxScript, _generateBoard,_aiBattle;
+    //AI
+
+    static bool _loadMinMaxScript,_loadGeneticAIScript, _generateBoard,_aiBattle;
     public static bool loadMinMaxScript { get { return _loadMinMaxScript; } }
+
+    static int _minMaxDepth, _boardLength;
+    public static int minMaxDepth { get { return _minMaxDepth; } }
+    public static bool loadGeneticAIScript { get { return _loadGeneticAIScript; } }
     public static bool generateBoard { get { return _generateBoard; } }
     public static bool aiBattle { get { return _aiBattle; } }
+
+    //Units
 
     static List<BaseUnit> _redUnits;
     public static List<BaseUnit> redUnits { get { return _redUnits; } }
@@ -20,18 +27,53 @@ public class GameData : SingletonScriptableObject<GameData>
     static List<BaseUnit> _blueUnits;
     public static List<BaseUnit> blueUnits { get { return _blueUnits; } }
 
-    static Color _aiColor;
-    public static Color aiColor { get { return _aiColor; } }
+    //Color
 
-    void SetMinMaxDepth(int depth)
+    static Color _minMaxColor, _geneticAIColor, _playerColor;
+    public static Color minMaxColor { get { return _minMaxColor; } }
+    public static Color geneticAIColor { get { return _geneticAIColor; } }
+    public static Color playerColor { get { return _playerColor; } }
+
+    void SetBoardLength(int Length)
     {
-        _minMaxDepth = depth;
+        _boardLength = Length;
     }
-
+    //AI
+        //MinMax
     void LoadMinMaxScript(bool load)
     {
         _loadMinMaxScript = load;
     }
+
+    void SetMinMaxDepth(int depth)
+    {
+        _minMaxDepth = depth;
+    }    
+        //Genetic
+
+    void GeneticAIScript(bool load)
+    {
+        _loadGeneticAIScript = load;
+    }
+
+            //Board
+    void GenerateBoard(bool generate)
+    {
+        _generateBoard = generate;
+
+        _boardLength = _generateBoard ? 10 : 8;
+    }
+
+
+    void SetAIBattle(bool battle)
+    {
+        _aiBattle = battle;
+
+    }
+
+
+
+    //Lists
     void SetBlueUnits(List<BaseUnit> units)
     {
         _blueUnits = units;
@@ -40,34 +82,39 @@ public class GameData : SingletonScriptableObject<GameData>
     {
         _redUnits = units;
     }
-    void SetAIColor(Color color)
-    {
-        _aiColor = color;
-    }
 
-    void SetBoardLength(int Length)
+    //Colors
+    void SetMinMaxColor(Color color)
     {
-        _boardLength = Length;
+        _minMaxColor = color;
     }
-    void GenerateBoard(bool generate)
+    void SetGeneticAIColor(Color color)
     {
-        _generateBoard = generate;
-
-        _boardLength = _generateBoard ? 10:8;
-    } 
+        _geneticAIColor = color;
+    }
+    void SetPlayerColor(Color color)
+    {
+        _playerColor = color;
+    }
     
-    void SetAIBattle(bool battle)
-    {
-        _aiBattle = battle;
-
-    }
-
 
     /*                  STATICS                  */
-    public static void STATIC_SetAIColor(Color color)
+
+    //Colors
+    public static void STATIC_SetMinMaxColor(Color color)
     {
-        instance.SetAIColor(color);
+        instance.SetMinMaxColor(color);
     }
+    public static void STATIC_SetGeneticAIColor(Color color)
+    {
+        instance.SetGeneticAIColor(color);
+    }  
+    
+    public static void STATIC_SetPlayerColor(Color color)
+    {
+        instance.SetPlayerColor(color);
+    }
+
     public static void STATIC_SetBlueUnits(List<BaseUnit> units)
     {
         instance.SetBlueUnits(units);
@@ -76,6 +123,13 @@ public class GameData : SingletonScriptableObject<GameData>
     {
         instance.SetRedUnits(units);
     }
+    public static void STATIC_SetBoardLength(int length)
+    {
+        instance.SetBoardLength(length);
+    }
+
+    // MiniMax
+
     public static void STATIC_SetMinMaxDepth(int depth)
     {
         instance.SetMinMaxDepth(depth);
@@ -84,16 +138,20 @@ public class GameData : SingletonScriptableObject<GameData>
     public static void STATIC_LoadMinMaxScript(bool load)
     {
         instance.LoadMinMaxScript(load);
+    }   
+
+    //Genetic AI
+    
+    public static void STATIC_LoadGeneticAIScript(bool load)
+    {
+        instance.GeneticAIScript(load);
     }
+
+    //TASK 3
 
     public static void STATIC_GenerateBoard(bool generate)
     {
         instance.GenerateBoard(generate);
-    }
-
-    public static void STATIC_SetBoardLength(int length)
-    {
-        instance.SetBoardLength(length);
     }
 
     public static void STATIC_SetAIBattle (bool battle)

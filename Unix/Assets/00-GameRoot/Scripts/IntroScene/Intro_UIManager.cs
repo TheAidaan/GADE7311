@@ -11,9 +11,16 @@ public class Intro_UIManager : UIManager
     GameData data;
     private void Start()
     {
+        GameData.STATIC_SetBoardLength(8);
         GameData.STATIC_LoadMinMaxScript(false);
         GameData.STATIC_GenerateBoard(false);
         GameData.STATIC_SetAIBattle(false);
+        GameData.STATIC_LoadGeneticAIScript(false);
+        GameData.STATIC_SetMinMaxColor(Color.white);
+        GameData.STATIC_SetGeneticAIColor(Color.white);
+        GameData.STATIC_SetPlayerColor(Color.white);
+
+
     }
 
     public override void SetUI()
@@ -71,30 +78,29 @@ public class Intro_UIManager : UIManager
 
     public void LoadMultiPlayer()
     {
-
-        GameData.STATIC_SetBoardLength(8);
-        GameData.STATIC_LoadMinMaxScript(false);
-
         SceneManager.LoadScene(1);
     }
 
     public void LoadSinglePlayer(int depth)
     {
-
-        GameData.STATIC_SetBoardLength(8);
         GameData.STATIC_SetMinMaxDepth(depth);
         GameData.STATIC_LoadMinMaxScript(true);
 
+
         SceneManager.LoadScene(1);
+
+
     }
 
     public void SpectatorPlayer()
     {
         GameData.STATIC_SetBoardLength(10);
-        GameData.STATIC_GenerateBoard(true);
+        GameData.STATIC_GenerateBoard(false);
 
         GameData.STATIC_SetMinMaxDepth(2);
         GameData.STATIC_LoadMinMaxScript(true);
+
+        GameData.STATIC_LoadGeneticAIScript(true);
 
         GameData.STATIC_SetAIBattle(true);
 
