@@ -5,9 +5,17 @@ using UnityEngine;
 public class MachineLearning : AI
 {
     // Start is called before the first frame update
+    int generation = 0;
+    private int[] _layers = new int[] { 1, 10, 10, 1 };
+    List<NeuralNetwork> _neuralNetwork;
 
+    private void Start()
+    {
+        //InitialiseNeuralNetwork();
+    }
     public override void AssignUnits()
     {
+        
 
         if (GameData.minMaxColor == Color.white)
         {
@@ -23,8 +31,10 @@ public class MachineLearning : AI
     }
     public override void Play()
     {
-
+        //_neuralNetwork.Sort();
         RandomMover();
+
+
 
         base.Play();
 
@@ -46,6 +56,18 @@ public class MachineLearning : AI
                 unit.Move(unit.highlightedTiles[Random.Range(0, unit.highlightedTiles.Count)]);
         }
 
+    }
+
+    void InitialiseNeuralNetwork()
+    {
+        for (int i = 0; i < aiUnits.Count; i++)
+        {
+            NeuralNetwork network = new NeuralNetwork(_layers);
+            network.Mutate();
+            _neuralNetwork.Add(network);
+
+
+        }
     }
 }
 

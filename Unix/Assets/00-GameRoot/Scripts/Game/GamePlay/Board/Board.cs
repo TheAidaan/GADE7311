@@ -18,7 +18,7 @@ public class Board : MonoBehaviour
 
     public void Create()
     {
-        GameObject[,] map = new GameObject[10, 6];
+        GameObject[,] map = new GameObject[10,6];
 
         allTiles = new Tile[GameData.boardLength, GameData.boardLength];
 
@@ -47,7 +47,8 @@ public class Board : MonoBehaviour
                 mtransform.position = new Vector3Int((x * 10) + 50,0, (y * 10) + 50);
 
                 allTiles[x, y] = newTile.GetComponent<Tile>();
-                allTiles[x, y].Setup(this, new Vector3Int(x,0,y));
+                string tileID = x.ToString() +","+ y.ToString();
+                allTiles[x, y].Setup(this, new Vector3Int(x,0,y),tileID);
 
                 if (GameData.generateBoard)
                     if (y != 0 && y != 1 && y != 8 && y != 9)

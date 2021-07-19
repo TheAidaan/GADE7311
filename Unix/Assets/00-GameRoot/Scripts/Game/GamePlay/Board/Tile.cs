@@ -7,11 +7,15 @@ public class Tile : MonoBehaviour
 
     public BaseUnit currentUnit = null;
 
+    public string tileID;
+
     
-    public void Setup(Board newBoard, Vector3Int newBoardPosition)
+    public void Setup(Board newBoard, Vector3Int BoardPosition ,string TileID)
     {
+        boardPosition = BoardPosition;
         board = newBoard;
-        boardPosition = newBoardPosition;
+        tileID = TileID;
+            
 
     }
 

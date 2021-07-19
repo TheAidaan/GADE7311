@@ -36,25 +36,32 @@ public class MiniMax : AI
 
     double Evaluate(BaseUnit unit)
     {
+        char characterCode;
         BaseUnit singletarget = null;
         List<BaseUnit> targets = new List<BaseUnit>();
 
         double evaluation = 0;
-        bool simpleEval = unit.characterCode == 'M' || unit.characterCode == 'R' ? true : false;
+        characterCode = unit.characterID[1];
+
+        bool simpleEval = characterCode == 'M' || characterCode == 'R' ? true : false;
 
 
         if (simpleEval)
         {
             singletarget = unit.CheckForEnemy();
             if (singletarget != null)
-                evaluation += evaluationScoreLibrary[singletarget.characterCode];
+                evaluation += evaluationScoreLibrary[characterCode];
         }
         else
         {
             targets = unit.CheckForEnemies(true);
 
             foreach (BaseUnit target in targets)
-                evaluation += evaluationScoreLibrary[target.characterCode];
+            {
+                characterCode = target.characterID[1];
+                evaluation += evaluationScoreLibrary[characterCode];
+
+            }
 
         }
 

@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class WizardUnit : BaseUnit
 { 
-    public override void Setup(Color TeamColor, Color32 unitColor, char CharacterCode)
+    public override void Setup(Color TeamColor, Color32 unitColor, string characterID)
     {
         maxHealth = 15;
         coolDown = 4f;
-        base.Setup(TeamColor, unitColor,CharacterCode);
+        base.Setup(TeamColor, unitColor, characterID);
 
         GetComponent<MeshFilter>().mesh = Resources.Load<Mesh>("Models/Wizard");
         gameObject.AddComponent<BoxCollider>();

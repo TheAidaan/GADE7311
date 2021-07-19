@@ -16,7 +16,8 @@ public class UnitAttackState : UnitBaseState
     float timePassed=0;
     public override void EnterState(BaseUnit script)
     {
-        if (script.characterCode == 'R'|| script.characterCode == 'M')
+        char characterCode = script.characterID[1];
+        if (characterCode == 'R'|| characterCode == 'M')
             script.transform.LookAt(script.target.transform);
         timePassed = 0;
     }

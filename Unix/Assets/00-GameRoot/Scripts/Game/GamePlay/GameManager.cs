@@ -23,7 +23,11 @@ public class GameManager : MonoBehaviour
     public static event Action play;
     public static event Action endGame;
 
-    [SerializeField]
+
+    CurrentGameData _currentGameData;
+    DataManager _dataManager; 
+
+     [SerializeField]
     GameData test;
 
     private void Awake()
@@ -33,7 +37,11 @@ public class GameManager : MonoBehaviour
         _blueTeamScore = _redTeamScore = 0;
 
         //tests();
+        _dataManager = new DataManager();
+        _currentGameData = new CurrentGameData();
 
+        
+        GameData.STATIC_SetHistoricGameData(_dataManager.LoadFile());
 
         if (GameData.loadMinMaxScript)
             gameObject.AddComponent<MiniMax>();
@@ -48,8 +56,6 @@ public class GameManager : MonoBehaviour
         _unitManager.Setup(board);
 
         SetAIEvaluationStatus(false);
-
-       
 
     }
 
@@ -105,6 +111,10 @@ public class GameManager : MonoBehaviour
 
         if (_gameOver)
         {
+            _currentGameData.winner = _redTeamWon ? 'R' : 'B';
+            GameData.STATIC_SetCurrentGameData(_currentGameData);
+            _dataManager.Save();
+
             endGame?.Invoke();
         }
 
@@ -113,6 +123,11 @@ public class GameManager : MonoBehaviour
     void Play()
     {
         StartCoroutine(WaitToPlay());
+    }
+    
+    void AddtoCurrentGameData(PlayState currentPlayState)
+    {      
+       _currentGameData.playStates.Add(currentPlayState);
     }
 
     public IEnumerator WaitToPlay()
@@ -133,8 +148,11 @@ public class GameManager : MonoBehaviour
         instance.SetAIEvaluationStatus(status);
     }
 
-    public static void Static_SwitchSides(Color color)
+    public static void Static_SwitchSides(Color color, string characterID, string tileID)
     {
+        instance.AddtoCurrentGameData(new PlayState(characterID, tileID, redTeamScore, blueTeamScore));
+
+
         instance.SwitchSides(color);
     }
     public static void Static_UnitDeath(Color color)

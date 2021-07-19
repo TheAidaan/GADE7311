@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class MeleeUnit : BaseUnit
 {
-    public override void Setup(Color TeamColor, Color32 unitColor, char CharacterCode)
+    public override void Setup(Color TeamColor, Color32 unitColor, string  CharacterID)
     {
         maxHealth = 20;
         coolDown = 3f;
         damage = 2;
 
-        base.Setup(TeamColor, unitColor,CharacterCode);
+        base.Setup(TeamColor, unitColor, CharacterID);
 
         movement = new Vector3Int(1, 1, 1);
 

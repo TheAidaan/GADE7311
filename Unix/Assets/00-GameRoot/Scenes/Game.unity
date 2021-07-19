@@ -498,7 +498,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2122599453
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3773,7 +3773,7 @@ MonoBehaviour:
   _txtInformation: {fileID: 2122599454}
   _txtRedTeamScore: {fileID: 8592116736270760426}
   _txtBlueTeamScore: {fileID: 2820495553447040613}
-  _txtWinner: {fileID: 2122599454}
+  _txtWinner: {fileID: 7384067451005924734}
 --- !u!1 &3813615867093077033
 GameObject:
   m_ObjectHideFlags: 0

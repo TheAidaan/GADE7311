@@ -96,7 +96,9 @@ public class UnitManager : MonoBehaviour
             newUnits.Add(newUnit);
 
             //setup peice
-            newUnit.Setup(teamColor, unitColor,key);
+            char color = teamColor == Color.red ? 'R' : 'B';
+            string id = color.ToString() + key + i.ToString();
+            newUnit.Setup(teamColor, unitColor, id);
         }
 
         return newUnits;

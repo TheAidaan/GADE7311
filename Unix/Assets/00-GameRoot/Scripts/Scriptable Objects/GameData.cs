@@ -34,6 +34,13 @@ public class GameData : SingletonScriptableObject<GameData>
     public static Color geneticAIColor { get { return _geneticAIColor; } }
     public static Color playerColor { get { return _playerColor; } }
 
+    //Data
+    static CurrentGameData _currentGameData;
+    public static CurrentGameData currentGameData { get { return _currentGameData; } }
+
+    static HistoricGameData _historicGameData;
+    public static HistoricGameData historicGameData { get { return _historicGameData; } }
+
     void SetBoardLength(int Length)
     {
         _boardLength = Length;
@@ -80,6 +87,7 @@ public class GameData : SingletonScriptableObject<GameData>
     }
     void SetRedUnits(List<BaseUnit> units)
     {
+        
         _redUnits = units;
     }
 
@@ -95,6 +103,16 @@ public class GameData : SingletonScriptableObject<GameData>
     void SetPlayerColor(Color color)
     {
         _playerColor = color;
+    } 
+    
+    //Data
+    void SetCurrentGameData(CurrentGameData data)
+    {
+        _currentGameData = data;
+    }
+    void SetHistoricGameData(HistoricGameData data)
+    {
+        _historicGameData = data;
     }
     
 
@@ -154,10 +172,19 @@ public class GameData : SingletonScriptableObject<GameData>
         instance.GenerateBoard(generate);
     }
 
-    public static void STATIC_SetAIBattle (bool battle)
+    public static void STATIC_SetAIBattle(bool battle)
     {
         instance.SetAIBattle(battle);
     }
 
-
+    //DATA
+    
+    public static void STATIC_SetCurrentGameData(CurrentGameData data)
+    {
+        instance.SetCurrentGameData(data);
+    }
+    public static void STATIC_SetHistoricGameData(HistoricGameData data)
+    {
+        instance.SetHistoricGameData(data);
+    }
 }

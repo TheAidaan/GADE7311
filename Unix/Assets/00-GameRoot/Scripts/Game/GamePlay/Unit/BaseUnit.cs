@@ -6,7 +6,7 @@ public abstract class BaseUnit : MonoBehaviour
 {
     public int maxHealth;
     int _health;
-    public char characterCode;
+    public string characterID;
     public int damage;
 
     #region Unit setup
@@ -16,9 +16,9 @@ public abstract class BaseUnit : MonoBehaviour
     public Vector3 rotation;
 
 
-    public virtual void Setup(Color TeamColor, Color32 unitColor, char CharacterCode)
+    public virtual void Setup(Color TeamColor, Color32 unitColor, string CharacterID)
     {
-        characterCode = CharacterCode;
+        characterID = CharacterID;
         teamColor = TeamColor;
 
         int layer = teamColor == Color.red ? 3:6;
@@ -129,15 +129,16 @@ public abstract class BaseUnit : MonoBehaviour
 
         //Move on board
         transform.position = currentTile.transform.position;
-        targetTile = null;
 
         if (!GameManager.aiEvaluationInProgress)
         {
-
             TransitionToState(idleState);
-            GameManager.Static_SwitchSides(teamColor);
+            GameManager.Static_SwitchSides(teamColor, characterID, targetTile.tileID);
         }
-        
+
+        targetTile = null;
+
+
     }
 
     #region Mouse events

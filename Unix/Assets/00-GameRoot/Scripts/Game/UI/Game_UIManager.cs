@@ -92,7 +92,7 @@ public class Game_UIManager : UIManager
 
         string winningTeam = GameManager.redTeamWon ? "red" : "blue";
         Color vertexColor = GameManager.redTeamWon ? new Color32(210, 95, 64, 255) : new Color32(80, 124, 159, 255);
-        _txtWinner.text = winningTeam + "team Won!";
+        _txtWinner.text = winningTeam + " team Won!";
         _txtWinner.color = vertexColor;
 
         GameManager.endGame -= EndGame;

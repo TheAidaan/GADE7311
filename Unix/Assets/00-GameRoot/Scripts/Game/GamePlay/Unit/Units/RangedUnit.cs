@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class RangedUnit : BaseUnit
 {
-    public override void Setup(Color TeamColor, Color32 unitColor, char CharacterCode)
+    public override void Setup(Color TeamColor, Color32 unitColor, string characterID)
     {
         maxHealth = 18;
         coolDown = 3f;
         damage = 2;
 
-        base.Setup(TeamColor, unitColor,CharacterCode);
+        base.Setup(TeamColor, unitColor, characterID);
 
 
         movement = new Vector3Int(0, 7, 0);
