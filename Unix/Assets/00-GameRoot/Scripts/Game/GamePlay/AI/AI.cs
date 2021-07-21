@@ -48,7 +48,6 @@ public abstract class AI : MonoBehaviour
 
     protected List<Tile> CheckValidMoves(BaseUnit unit)
     {
-
         if (!unit.gameObject.activeSelf)
             return null;
 

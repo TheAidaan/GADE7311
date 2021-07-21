@@ -38,6 +38,8 @@ public class Brain : AI
 
     Network _network;
 
+    Move lastMove = new Move();//stores the move the brain made last to avoid repitition;
+
     private void Start()
     {
         _weights = LoadWeights();
@@ -140,6 +142,8 @@ public class Brain : AI
 
         move.unit.SetBrain(this);
         move.unit.Move(move.target);
+
+        
 
         base.Play();
 

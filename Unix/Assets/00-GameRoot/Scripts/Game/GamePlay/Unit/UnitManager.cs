@@ -43,28 +43,25 @@ public class UnitManager : MonoBehaviour
         PlaceUnits(GameData.boardLength - 2, GameData.boardLength - 1, GameData.blueUnits, board);
 
 
-        if (GameData.loadMinMaxScript)
-        {
-            _minMax = GetComponent<MiniMax>();
-            _minMax.AssignUnits();
-        }
-
-        if (GameData.loadMachineLearningScript)
-        {
-            _brain = GetComponent<Brain>();
-            _brain.AssignUnits();
-
-        }
-
+        
         if (GameData.aiBattle)
         {
-            int rand = UnityEngine.Random.Range(0, 1);
+            int rand = UnityEngine.Random.Range(0, 2);
 
-           
+            _minMax = GetComponent<MiniMax>();
+            _brain = GetComponent<Brain>();
+
+
             if (rand == 1)
+            {
                 _brain.AssignUnits();
-            else
                 _minMax.AssignUnits();
+            }
+            else
+            {
+                _minMax.AssignUnits();
+                _brain.AssignUnits();
+            }
 
 
             SetInteractive(GameData.redUnits, false);
@@ -72,7 +69,22 @@ public class UnitManager : MonoBehaviour
             SwitchSides(Color.red);
         }
         else
+        {
+            if (GameData.loadMinMaxScript)
+            {
+                _minMax = GetComponent<MiniMax>();
+                _minMax.AssignUnits();
+            }
+
+            if (GameData.loadMachineLearningScript)
+            {
+                _brain = GetComponent<Brain>();
+                _brain.AssignUnits();
+
+            }
+
             SwitchSides(Color.red);
+        }
     }
 
     List<BaseUnit> CreateUnits(Color teamColor, Color32 unitColor,Board board)

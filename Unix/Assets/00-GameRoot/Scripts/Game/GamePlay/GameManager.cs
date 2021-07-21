@@ -112,7 +112,10 @@ public class GameManager : MonoBehaviour
     public IEnumerator WaitToPlay()
     {
         yield return new WaitForSeconds(2);
-        play?.Invoke();
+        if (!_gameOver)
+            play?.Invoke();
+        else
+            play = null;
 
     }
 

@@ -18,7 +18,7 @@ struct TileRating
 
 public struct BestMove
 {
-    public float evaluation;
+    public double evaluation;
     public Move move;
 }
 
@@ -26,7 +26,7 @@ public class Network
 {
     public BestMove[] output;
     UnitRating[] _neurons;
-    float _bias;
+    double _bias;
 
     Dictionary<char, double> _unitWeights = new Dictionary<char, double>();
     Dictionary<char, double> _tileWeights = new Dictionary<char, double>();
@@ -45,7 +45,7 @@ public class Network
         _tileWeights.Add('W', weights.tileWeights.wizardWeight);
 
         int totalGames = weights.wins + weights.losses;
-        _bias = totalGames==0? UnityEngine.Random.Range(-0.5f, 0.5f) : weights.wins/totalGames; //prevents dividing by zero,thus making me sad
+        _bias = totalGames==0? UnityEngine.Random.Range(-0.5f, 0.5f) : (double)weights.wins / (double)totalGames; //prevents dividing by zero,thus making me sad
 
         for (int i = 0; i < _neurons.Length; i++)
         {
@@ -110,11 +110,10 @@ public class Network
                 BestMove bestMove = new BestMove();
                 bestMove.move = move;
 
-                bestMove.evaluation = (float)Math.Tanh(_neurons[i].rating + _neurons[i].moves[j].rating) +_bias;
+                bestMove.evaluation = Math.Tanh(_neurons[i].rating + _neurons[i].moves[j].rating) +_bias;
                 allmoves.Add(bestMove);
             }
         }
-
         output = allmoves.ToArray();
 
         SortOutputs();
