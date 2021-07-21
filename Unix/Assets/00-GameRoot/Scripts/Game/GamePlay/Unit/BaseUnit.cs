@@ -4,6 +4,7 @@ using UnityEngine;
 
 public abstract class BaseUnit : MonoBehaviour
 {
+    public Brain brain;
     public int maxHealth;
     int _health;
     public string characterID;
@@ -248,10 +249,19 @@ public abstract class BaseUnit : MonoBehaviour
 
         if (canAttack)
         {
-            StartCoroutine(target.TakeDamage(damage));             //attack 
+            if (brain != null)
+            {
+                brain.IncreaseTileWeightSimple(characterID[1],target.characterID[1]);// this was a good placement of the unit because it can attack another. It's not going to loose its brain because the attack must be proven to be successful/unsucessful
+            }
+                StartCoroutine(target.TakeDamage(damage,characterID[1]));             //attack 
         }
         else
         {
+            if (brain != null)
+            {
+                brain.IncreaseUnitWeight(characterID[1]); // increase weight of unit if another unit has been killed or moved out of way 
+                brain = null; //i dont want it to increase after every single kill
+            }
             TransitionToState(idleState); //go back to idle
         }
     }
@@ -267,7 +277,7 @@ public abstract class BaseUnit : MonoBehaviour
 
     #endregion
 
-    public IEnumerator TakeDamage(int damage)
+    public IEnumerator TakeDamage(int damage, char attacker)
     {
         _health -= damage;
         gameObject.GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
@@ -278,9 +288,28 @@ public abstract class BaseUnit : MonoBehaviour
         }
 
         yield return new WaitForSeconds(.5f);
+        
         gameObject.GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
 
+        if(brain != null)
+        {
+            brain.DecreaseTileWeights(characterID[1],attacker);
+        }
+
     }
-   
-    
+
+    #region MachineLearning
+    private void OnDestroy()
+    {
+        if (brain != null)
+            brain.DecreaseUnitWeight(characterID[1]); // if i die, its a bad
+    }
+
+    public void SetBrain(Brain Brain)
+    {
+        brain = Brain;
+    }
+    #endregion
+
+
 }

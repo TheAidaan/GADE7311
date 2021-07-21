@@ -75,18 +75,29 @@ public class WizardUnit : BaseUnit
 
     public override void Attack()
     {
+        List<char> targetChar = new List<char>();
         List<BaseUnit> targets = CheckForEnemies(true);
 
         if (targets.Count == 0)
         {
+            if (brain != null)
+            {
+                brain.IncreaseUnitWeight(characterID[1]); // increase weight of unit if another unit has been killed or moved out of way 
+                brain = null; //i dont want it to increase after every single kill
+            }
+
             TransitionToState(idleState);
         }
 
         foreach (BaseUnit target in targets)
         {
-            StartCoroutine(target.TakeDamage(4)); //attack            
+            StartCoroutine(target.TakeDamage(4, characterID[1])); //attack       
+            targetChar.Add(target.characterID[1]);
         }
-
+        if (brain!=null)
+        {
+            brain.IncreaseTileWeightWizard(targetChar);
+        }
         targets.Clear();
 
     }

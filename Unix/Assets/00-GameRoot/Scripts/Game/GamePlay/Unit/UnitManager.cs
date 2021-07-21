@@ -8,7 +8,7 @@ public class UnitManager : MonoBehaviour
     GameObject _unitPrefab;
 
     MiniMax _minMax = null;
-    MachineLearning _machineLearning = null;
+    Brain _brain = null;
 
     char[] _unitOrder = new char[12]
     {
@@ -51,8 +51,8 @@ public class UnitManager : MonoBehaviour
 
         if (GameData.loadMachineLearningScript)
         {
-            _machineLearning = GetComponent<MachineLearning>();
-            _machineLearning.AssignUnits();
+            _brain = GetComponent<Brain>();
+            _brain.AssignUnits();
 
         }
 
@@ -62,7 +62,7 @@ public class UnitManager : MonoBehaviour
 
            
             if (rand == 1)
-                _machineLearning.AssignUnits();
+                _brain.AssignUnits();
             else
                 _minMax.AssignUnits();
 
@@ -153,24 +153,24 @@ public class UnitManager : MonoBehaviour
                     GameManager.play += _minMax.Play;
                 }
 
-                if (_machineLearning != null)
+                if (_brain != null)
                 {
                     if (GameData.geneticAIColor == Color.red)
                         SetInteractive(GameData.redUnits, false);
                     else
                         SetInteractive(GameData.blueUnits, false);
 
-                    GameManager.play += _machineLearning.Play;
+                    GameManager.play += _brain.Play;
                 }
 
             }
         }
         else
         {
-            if (_machineLearning != null)
+            if (_brain != null)
             {
                 if (GameData.geneticAIColor != colortThatJustPlayed)
-                    GameManager.play += _machineLearning.Play;
+                    GameManager.play += _brain.Play;
             }
 
             if (_minMax != null)

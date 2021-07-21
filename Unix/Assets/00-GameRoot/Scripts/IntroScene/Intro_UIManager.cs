@@ -112,6 +112,8 @@ public class Intro_UIManager : UIManager
     {
         GameData.STATIC_SetBoardLength(10);
         GameData.STATIC_GenerateBoard(true);
+        GameData.STATIC_LoadMachineLearningScript(true);
+
 
         SceneManager.LoadScene(1);
     }
