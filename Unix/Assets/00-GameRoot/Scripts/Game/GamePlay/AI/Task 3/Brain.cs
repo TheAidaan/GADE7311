@@ -38,7 +38,7 @@ public class Brain : AI
 
     Network _network;
 
-    Move lastMove = new Move();//stores the move the brain made last to avoid repitition;
+    Move _lastMove = new Move();//stores the move the brain made last to avoid repitition;
 
     private void Start()
     {
@@ -143,6 +143,7 @@ public class Brain : AI
         move.unit.SetBrain(this);
         move.unit.Move(move.target);
 
+        _lastMove = move;
         
 
         base.Play();
@@ -155,7 +156,14 @@ public class Brain : AI
         foreach (BaseUnit unit in aiUnits)
         {
             if (CheckValidMoves(unit) != null)
-                filteredUnits.Add(unit);
+            {
+                if(unit != _lastMove.unit)
+                {
+                    filteredUnits.Add(unit);
+
+                }
+
+            }
         }
 
         return filteredUnits;

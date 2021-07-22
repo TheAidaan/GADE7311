@@ -77,7 +77,7 @@ public class Board : MonoBehaviour
     {
         bool[,] boolMap = new bool[map.GetLength(0), map.GetLength(1)];
 
-        float chanceToStayAlive = 0.45f;
+        float chanceToStayAlive = 0.55f;
 
         for (int x = 0; x < map.GetLength(0); x++)
         {
