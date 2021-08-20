@@ -57,9 +57,6 @@ public class Board : MonoBehaviour
             
         }
 
-        if (GameData.generateBoard)
-            GenerateMap(map);
-
         for (int x = 0; x < GameData.boardLength; x+=2)
         {
             for (int y = 0; y < GameData.boardLength; y++)
@@ -71,6 +68,9 @@ public class Board : MonoBehaviour
                     tile.GetComponent<Renderer>().material.color = new Color32(230, 220, 187, 255);
             }
         }
+
+        if (GameData.generateBoard)
+            GenerateMap(map);
     }
 
     void GenerateMap(GameObject[,] map)
@@ -101,7 +101,8 @@ public class Board : MonoBehaviour
 
                 if (!boolMap[x, y])
                 {
-                    Destroy(map[x,y]);
+                    map[x,y].GetComponent<Renderer>().material.color = new Color32(17, 17, 17, 255);
+                    Destroy(map[x, y].GetComponent<Tile>());
                 }
 
             }

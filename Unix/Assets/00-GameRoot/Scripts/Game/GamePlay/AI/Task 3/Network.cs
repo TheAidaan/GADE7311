@@ -59,7 +59,7 @@ public class Network
    {
         for (int i = 0; i < _neurons.Length; i++)
         {
-            _neurons[i].rating = (int)_neurons[i].unit.characterID[1] *_unitWeights[_neurons[i].unit.characterID[1]];
+            _neurons[i].rating = Math.Tanh((double)_neurons[i].unit.characterID[1] *_unitWeights[_neurons[i].unit.characterID[1]]);
         }
 
         ProcessUnitTiles();
@@ -81,7 +81,7 @@ public class Network
                 _neurons[i].moves[j].tile = validMoves[j];
                 _neurons[i].unit.Move(validMoves[j]);
                 
-                _neurons[i].moves[j].rating = Evaluate(_neurons[i].unit) * _tileWeights[_neurons[i].unit.characterID[1]];
+                _neurons[i].moves[j].rating = Math.Tanh(Evaluate(_neurons[i].unit) * _tileWeights[_neurons[i].unit.characterID[1]]);
             }
 
             _neurons[i].unit.Move(unitCurrentTile);
@@ -110,10 +110,12 @@ public class Network
                 BestMove bestMove = new BestMove();
                 bestMove.move = move;
 
-                bestMove.evaluation = Math.Tanh(_neurons[i].rating + _neurons[i].moves[j].rating) +_bias;
+                bestMove.evaluation = _neurons[i].rating + _neurons[i].moves[j].rating +_bias;
+
                 allmoves.Add(bestMove);
             }
         }
+        
         output = allmoves.ToArray();
 
         SortOutputs();
@@ -135,12 +137,6 @@ public class Network
         }
     }
 
-    /// <summary>
-    /// FIGURE OUT WHAT THE FUCK TO DO WITH THIS SHIT
-    /// </summary>
-    /// <param name="unit"></param>
-    /// <returns></returns>
-    /// 
     public Dictionary<char, double> evaluationScoreLibrary = new Dictionary<char, double>()
     {
         {'M', 1 },

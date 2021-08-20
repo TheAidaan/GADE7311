@@ -17,7 +17,8 @@ public class GameManager : MonoBehaviour
     static bool _aiEvaluationInProgress;
     public static bool aiEvaluationInProgress { get { return _aiEvaluationInProgress; } }
 
-    bool _gameOver;
+    static bool _gameOver;
+    public static bool gameOver { get { return _gameOver; } }
 
     public static event Action updateUI;
     public static event Action play;

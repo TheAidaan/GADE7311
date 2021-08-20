@@ -45,8 +45,6 @@ public class Brain : AI
         _weights = LoadWeights();
         if (_weights == null)
             InitaliseWeights();
-        
-        //InitialiseNeuralNetwork();
 
         GameManager.endGame += SaveWeights;
     }
@@ -166,6 +164,10 @@ public class Brain : AI
             }
         }
 
+        if(filteredUnits.Count == 0 && !GameManager.gameOver)
+        {
+            filteredUnits.Add(_lastMove.unit);
+        }
         return filteredUnits;
     }
 

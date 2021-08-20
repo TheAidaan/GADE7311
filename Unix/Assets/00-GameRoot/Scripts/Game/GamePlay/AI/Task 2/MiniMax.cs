@@ -8,7 +8,16 @@ public class MiniMax : AI
     
     public override void AssignUnits()
     {
-        base.AssignUnits();         //the minimax algorthim gets to choose a team first and the genetic algorthim must take what's left over in an AI Battle
+        if (GameData.geneticAIColor == Color.white)
+        {
+            base.AssignUnits();         
+
+        }
+        else
+        {
+            aiUnits = GameData.geneticAIColor == Color.red ? GameData.blueUnits : GameData.redUnits;
+            teamColor = GameData.geneticAIColor == Color.red ? Color.blue : Color.red;
+        }
         GameData.STATIC_SetMinMaxColor(teamColor);
         string color = teamColor == Color.red ? "red" : "blue";
         Debug.Log("MiniMax is playing as the " + color + " team");
